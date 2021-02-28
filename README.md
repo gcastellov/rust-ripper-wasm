@@ -1,6 +1,8 @@
 # WASM rust the ripper 
 Password cracker made in WASM Rust, inspired by the popular John the Ripper.
-The app use a collection of password dictionaries and different algorithms to perform a brute attack in order to get the ciphered password.
+The app uses a collection of password dictionaries and different algorithms to perform a brute attack in order to get the ciphered password.
+
+![UI](doc/ui.png)
 
 ## Available algorithms
 
