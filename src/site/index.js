@@ -1,0 +1,89 @@
+const js = import("./node_modules/ripper_wasm/ripper_wasm.js");
+const mem =  import("./node_modules/ripper_wasm/ripper_wasm_bg.wasm");
+
+const txtWordProgress = document.getElementById("txtWordProgress");
+const spanResult = document.getElementById("sResult");
+
+mem.then(m => {
+    const memory = m.memory;
+
+    js.then(async j => {
+
+        const ckDictionaries = document.getElementsByName("ckDictionary");
+        const rbAlgorithm = document.getElementsByName("rbAlgorithm");
+        const txtWordListCount = document.getElementById("txtWordListCount");
+        const txtPwdOutput = document.getElementById("txtPwdOutput");
+        var ripper = new j.Ripper();
+
+        const clean = () => {
+            return new Promise((resolve, reject) => {
+                spanResult.innerHTML = "";
+                txtPwdOutput.value = "";
+                txtWordProgress.value = ""; 
+                resolve();
+            });
+        };
+
+        const execute = () => {
+            clean()
+                .then(run())
+                .then(() => {
+                    txtWordProgress.value = ripper.get_progress();
+                    const match = ripper.get_match();
+                    if (match !== "") {
+                        txtPwdOutput.value = match;
+                        spanResult.innerHTML = "FOUND!!";
+                    }
+                });
+        };
+
+        const run = () => {
+            return new Promise((resolve, reject) => {
+                const pwd = document.getElementById("txtPwdInput").value;
+                const algorithm = getSelectedAlgorithm();
+                ripper.set_algorithm(algorithm);
+                ripper.set_input(pwd);
+                ripper.try_match();
+                resolve();
+            });
+        };
+       
+        const getSelectedAlgorithm = () => {
+            const algorithms = Array.from(rbAlgorithm);
+            const selected =  algorithms.find(algorithm => algorithm.checked);
+            return selected.value;
+        };
+
+        const getSelectedDictionaries = () => {
+            const dictionaries = Array.from(ckDictionaries);
+            return dictionaries
+                .filter(dictionary => {
+                    return dictionary.checked;
+                })
+                .map(dictionary => dictionary.value);
+        };
+
+        const updateDictionarySelection = async () => {
+            var wordEntries = "";        
+            const dictionaries = getSelectedDictionaries();
+            const promises = dictionaries.map(dictionary => {
+                return fetch(`./assets/${dictionary}`)
+                    .then(r => r.text())
+                    .then(text => wordEntries = wordEntries.concat(text))
+            });
+
+            await Promise.all(promises);
+
+            ripper.load_word_entries(wordEntries);
+            txtWordListCount.value = ripper.get_word_list_count();
+        };
+
+        await updateDictionarySelection();
+
+        const button = document.getElementById("btnRun");
+        button.addEventListener("click", execute);
+
+        rbAlgorithm.forEach(element => element.addEventListener("change", clean));
+        ckDictionaries.forEach(element => element.addEventListener("change", updateDictionarySelection));
+    });
+});

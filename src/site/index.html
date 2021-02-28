@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    <body>
+        <h1>RUST THE RIPPER</h1>
+        <div>
+          <label for="txtPwdInput">Password to check</label>
+          <input type="text" name="txtPwdInput" id="txtPwdInput"></input>
+        </div>
+        <div class="algorithms">
+          <ul>
+            <li>
+              <input type="radio" id="rbMd4" name="rbAlgorithm" value="4" checked="true"></input>
+              <label for="rbMd4">md4</label>
+            </li>
+            <li>
+              <input type="radio" id="rbMd5" name="rbAlgorithm" value="1"></input>
+              <label for="rbMd5">md5</label>
+            </li>
+            <li>
+              <input type="radio" id="rbSha1" name="rbAlgorithm" value="5"></input>
+              <label for="rbSha1">sha1</label>
+            </li>
+            <li>
+              <input type="radio" id="rbSha256" name="rbAlgorithm" value="3"></input>
+              <label for="rbSha256">sha256</label>
+            </li>
+            <li>
+              <input type="radio" id="rbBase64" name="rbAlgorithm" value="2"></input>
+              <label for="rbBase64">base64</label>
+            </li>
+          </ul>
+        </div>
+        <div class="dictionaries">
+          <ul>
+            <li>
+              <input type="checkbox" id="ckEnglish" name="ckDictionary" value="english.txt" checked="true"></input>
+              <a for="ckEnglish" target="_blank" href="./assets/english.txt">English</a>
+            </li>
+            <li>
+              <input type="checkbox" id="ckSpanish" name="ckDictionary" value="spanish.txt"></input>
+              <a for="ckSpanish" target="_blank" href="./assets/spanish.txt">Spanish</a>
+            </li>
+            <li>
+              <input type="checkbox" id="ckFrench" name="ckDictionary" value="french.txt"></input>
+              <a for="ckFrench" target="_blank" href="./assets/french.txt">French</a>
+            </li>
+            <li>
+              <input type="checkbox" id="ckRussian" name="ckDictionary" value="russian.txt"></input>
+              <a for="ckRussian" target="_blank" href="./assets/russian.txt">Russian</a>
+            </li>
+            <li>
+              <input type="checkbox" id="ckGerman" name="ckDictionary" value="german.txt"></input>
+              <a for="ckGerman" target="_blank" href="./assets/german.txt">German</a>
+            </li>
+            <li>
+              <input type="checkbox" id="ckItalian" name="ckDictionary" value="italian.txt"></input>
+              <a for="ckItalian" target="_blank" href="./assets/italian.txt">Italian</a>
+            </li>
+            <li>
+              <input type="checkbox" id="ckSwedish" name="ckDictionary" value="swedish.txt"></input>
+              <a for="ckSwedish" target="_blank" href="./assets/swedish.txt">Swedish</a>
+            </li>
+            <li>
+              <input type="checkbox" id="ckFisnish" name="ckDictionary" value="finnish.txt"></input>
+              <a for="ckFisnish" target="_blank" href="./assets/finnish.txt">Finnish</a>
+            </li>
+            <li>
+              <input type="checkbox" id="ckCzech" name="ckDictionary" value="czech.txt"></input>
+              <a for="ckCzech" target="_blank" href="./assets/czech.txt">Czech</a>
+            </li>
+          </ul>
+        </div>        
+        <div>
+          <input type="button" name="btnRun" id="btnRun" value="Run"></input>
+        </div>
+        <div class="stats">
+          <div>
+            <label for="txtWordListCount">Word entries</label>
+            <input type="text" name="txtWordListCount" id="txtWordListCount" readonly="true"></input>
+          </div>
+          <div>
+            <label for="txtWordProgress">Progress</label>
+            <input type="text" name="txtWordProgress" id="txtWordProgress" readonly="true"></input>
+          </div>
+          <div>
+            <label for="txtPwdOutput">Match</label>
+            <input type="text" name="txtPwdOutput" id="txtPwdOutput" readonly="true"></input>
+          </div>
+        </div>
+        <div class="result">
+          <span id="sResult"></span>
+        </div>
+        <script src="./index.js"></script>
+    </body>
+</html>
