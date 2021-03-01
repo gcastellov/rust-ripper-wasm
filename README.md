@@ -1,7 +1,7 @@
 # WASM rust the ripper 
 Password cracker made in WASM Rust, inspired by the popular John the Ripper.
 The app uses a collection of password dictionaries and different algorithms to perform a brute attack in order to get the ciphered password.
-<br/><br/>
+<br/>
 
 ## Available algorithms
 Please, refer to each crate documentation and check its licensing.
@@ -14,11 +14,11 @@ Please, refer to each crate documentation and check its licensing.
 | `sha256`    | SHA-2 256| [![crates.io](https://img.shields.io/crates/v/sha256.svg)](https://crates.io/crates/sha256)|
 | `base64`    | Base64   | [![crates.io](https://img.shields.io/crates/v/base64.svg)](https://crates.io/crates/base64)|
 
-<br/><br/>
+<br/>
 
 ![UI](doc/ui.png)
 
-<br/><br/>
+<br/>
 
 ## Build and run in development environment
 
@@ -54,7 +54,7 @@ npm run serve
 
 Enjoy
 
-<br/><br/>
+<br/>
 
 ## License
 This project is licensed under the terms of the MIT license. 

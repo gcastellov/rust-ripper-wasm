@@ -7,8 +7,12 @@ edition = "2018"
 [lib]
 crate-type = ["cdylib"]
 
+[dev-dependencies]
+wasm-bindgen-test = "0.3.21"
+
 [dependencies]
 wasm-bindgen = "0.2"
+js-sys = "0.3.48"
 md5 = "0.7.0"
 base64 = "0.13.0"
 sha256 = "1.0.0"

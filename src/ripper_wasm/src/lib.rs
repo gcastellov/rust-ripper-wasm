@@ -1,4 +1,5 @@
 use wasm_bindgen::prelude::*;
+extern crate js_sys;
 extern crate base64;
 extern crate md5;
 extern crate sha256;
@@ -22,7 +23,8 @@ pub struct Ripper {
     word_list: Vec<String>,
     word_list_progress: usize,
     word_match: Option<String>,
-    algorithm: Option<Algorithm>
+    algorithm: Option<Algorithm>,
+    elapsed_seconds: Option<f64>,
 }
 
 struct Md5Wrapper {}
@@ -41,7 +43,8 @@ impl Ripper {
             word_list: Vec::default(),
             word_list_progress: 0,
             word_match: None,
-            algorithm: None
+            algorithm: None,
+            elapsed_seconds: None
         }
     }
 
@@ -59,6 +62,8 @@ impl Ripper {
     pub fn load_word_entries(&mut self, entries: String) {        
         self.word_list = entries
             .split("\r\n")
+            .map(|word|word.split("\n"))
+            .flatten()
             .filter_map(|word|if word.is_empty() { None } else { Some(word.to_string()) })
             .collect();
     }
@@ -70,6 +75,7 @@ impl Ripper {
             panic!("set algorithm first!");
         }
 
+        let starting = js_sys::Date::now();
         let algorithm = self.algorithm.as_ref().unwrap();
         let encoder = algorithm.get_encoder();
 
@@ -82,6 +88,9 @@ impl Ripper {
             }
         }
 
+        let ending = js_sys::Date::now();
+        let elapsed = (ending - starting) / 1_000f64;
+        self.elapsed_seconds = Some(elapsed);
         self.word_match.is_some()
     }
 
@@ -96,13 +105,18 @@ impl Ripper {
     pub fn get_match(&self) -> String {
         self.word_match.clone().unwrap_or_default()
     }
+
+    pub fn get_elapsed_seconds(&self) -> f64 {
+        self.elapsed_seconds.unwrap_or(0.0)
+    }
 }
 
 impl Ripper {
     fn reset(&mut self) {
         self.word_match = None;
+        self.elapsed_seconds = None;
         self.word_list_progress = 0;
-    }
+    }    
 }
 
 trait EncoderFactory {
@@ -165,6 +179,9 @@ impl EncoderFactory for Algorithm {
 #[cfg(test)]
 mod tests {
 
+    #![cfg(target_arch = "wasm32")]
+    extern crate wasm_bindgen_test;
+    use wasm_bindgen_test::*;
     use crate::Ripper;    
     use crate::Algorithm;
         
@@ -179,7 +196,7 @@ mod tests {
         assert_eq!("my_word", cracker.word_match.unwrap_or_default());
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn reset_clear_result() {
         let mut cracker = Ripper::new();
         cracker.word_match = Some("match".to_string());
@@ -187,12 +204,14 @@ mod tests {
         cracker.reset();
 
         assert_eq!(None, cracker.word_match);
+        assert_eq!(None, cracker.elapsed_seconds);
+        assert_eq!(0.0, cracker.get_elapsed_seconds());
         assert_eq!(true, cracker.get_match().is_empty());
         assert_eq!(0, cracker.word_list_progress);
         assert_eq!(0, cracker.get_progress());
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn load_word_entries_filter_empty_lines() {
         const WORD_LIST: &str = "\r\n";
 
@@ -200,8 +219,26 @@ mod tests {
         cracker.load_word_entries(WORD_LIST.to_string());
         assert_eq!(0, cracker.get_word_list_count());
     }
+
+    #[wasm_bindgen_test]
+    fn load_word_entries_using_new_line_style() {
+        const WORD_LIST: &str = "one\ntwo\nthree";
+
+        let mut cracker: Ripper = Ripper::new();
+        cracker.load_word_entries(WORD_LIST.to_string());
+        assert_eq!(3, cracker.get_word_list_count());
+    }
+
+    #[wasm_bindgen_test]
+    fn load_word_entries_combining_new_line_style() {
+        const WORD_LIST: &str = "one\r\ntwo\nthree\r\nfour";
+
+        let mut cracker: Ripper = Ripper::new();
+        cracker.load_word_entries(WORD_LIST.to_string());
+        assert_eq!(4, cracker.get_word_list_count());
+    }
     
-    #[test]
+    #[wasm_bindgen_test]
     fn load_word_entries_reset_values() {
         const WORD_LIST_ONE: &str = "one\r\ntwo\r\nthree";
         const WORD_LIST_TWO: &str = "one\r\ntwo\r\nthree\r\nfour";
@@ -214,27 +251,27 @@ mod tests {
         assert_eq!(4, cracker.get_word_list_count());
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn compute_md5() {
         compute("E4EAC943E400CD75335CE2A751E794F4", Algorithm::Md5);
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn compute_base64() {
         compute("bXlfd29yZA==", Algorithm::Base64);
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn compute_sha256() {
         compute("7C375E543FB8235B84054D89818C8D30B1C55CD06A65236C56EFE6223D43C06E", Algorithm::Sha256);
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn compuet_md4() {
         compute("3B9AFF425FA5F33A77B0DC569AB4FE60", Algorithm::Md4)
     }
 
-    #[test]
+    #[wasm_bindgen_test]
     fn compuet_sha1() {
         compute("3E047347D97C14169F3EA769B1F28CAF9D6A8E5D", Algorithm::Sha1);
     }

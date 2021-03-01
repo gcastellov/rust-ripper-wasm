@@ -13,6 +13,7 @@ mem.then(m => {
         const rbAlgorithm = document.getElementsByName("rbAlgorithm");
         const txtWordListCount = document.getElementById("txtWordListCount");
         const txtPwdOutput = document.getElementById("txtPwdOutput");
+        const txtElapsedTime = document.getElementById("txtElapsedTime");
         var ripper = new j.Ripper();
 
         const clean = () => {
@@ -29,6 +30,7 @@ mem.then(m => {
                 .then(run())
                 .then(() => {
                     txtWordProgress.value = ripper.get_progress();
+                    txtElapsedTime.value = ripper.get_elapsed_seconds();
                     const match = ripper.get_match();
                     if (match === "") {
                         txtResult.value = "NOT FOUND!!";
