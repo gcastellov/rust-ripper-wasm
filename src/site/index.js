@@ -2,7 +2,7 @@ const js = import("./node_modules/ripper_wasm/ripper_wasm.js");
 const mem =  import("./node_modules/ripper_wasm/ripper_wasm_bg.wasm");
 
 const txtWordProgress = document.getElementById("txtWordProgress");
-const spanResult = document.getElementById("sResult");
+const txtResult = document.getElementById("txtResult");
 
 mem.then(m => {
     const memory = m.memory;
@@ -17,7 +17,7 @@ mem.then(m => {
 
         const clean = () => {
             return new Promise((resolve, reject) => {
-                spanResult.innerHTML = "";
+                txtResult.value = "";
                 txtPwdOutput.value = "";
                 txtWordProgress.value = ""; 
                 resolve();
@@ -30,9 +30,12 @@ mem.then(m => {
                 .then(() => {
                     txtWordProgress.value = ripper.get_progress();
                     const match = ripper.get_match();
-                    if (match !== "") {
+                    if (match === "") {
+                        txtResult.value = "NOT FOUND!!";
+                    }
+                    else {
                         txtPwdOutput.value = match;
-                        spanResult.innerHTML = "FOUND!!";
+                        txtResult.value = "FOUND!!";
                     }
                 });
         };
