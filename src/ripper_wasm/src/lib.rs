@@ -13,11 +13,52 @@ mod algorithms;
 #[wasm_bindgen]
 pub struct Ripper {
     input: String,
-    word_list: Vec<String>,
-    word_list_progress: usize,
+    dictionary: Dictionary,
     word_match: Option<String>,
     algorithm: Option<Algorithm>,
     elapsed_seconds: Option<f64>,
+}
+
+struct Dictionary {
+    word_list: Vec<String>,
+    index: usize
+}
+
+impl Default for Dictionary {   
+    fn default() -> Self {
+        Dictionary {
+            word_list: Vec::default(),
+            index: 0
+        }
+    }
+}
+
+impl Dictionary {
+    fn load(&mut self, entries: String) {
+        self.word_list = entries
+            .split("\r\n")
+            .map(|word|word.split("\n"))
+            .flatten()
+            .filter_map(|word|if word.is_empty() { None } else { Some(word.to_string()) })
+            .collect()
+    }
+
+    fn len(&self) -> usize {
+        self.word_list.len()
+    }
+}
+
+impl Iterator for Dictionary {
+    type Item = String;
+    fn next(&mut self) -> Option<Self::Item> { 
+        if self.index < self.word_list.len() {
+            let slice = &self.word_list[self.index..self.index+1];            
+            self.index += 1;
+            Some(slice[0].clone())
+        } else {
+            None
+        }
+    }
 }
 
 #[wasm_bindgen]
@@ -26,12 +67,11 @@ impl Ripper {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Ripper { 
-            input: String::new(),
-            word_list: Vec::default(),
-            word_list_progress: 0,
+            input: String::default(),
+            dictionary: Dictionary::default(),
             word_match: None,
             algorithm: None,
-            elapsed_seconds: None
+            elapsed_seconds: None,
         }
     }
 
@@ -46,13 +86,8 @@ impl Ripper {
         self.algorithm = Some(algorithm);
     }
 
-    pub fn load_word_entries(&mut self, entries: String) {        
-        self.word_list = entries
-            .split("\r\n")
-            .map(|word|word.split("\n"))
-            .flatten()
-            .filter_map(|word|if word.is_empty() { None } else { Some(word.to_string()) })
-            .collect();
+    pub fn load_word_entries(&mut self, entries: String) {
+        self.dictionary.load(entries);
     }
 
     pub fn try_match(&mut self) -> bool {
@@ -66,9 +101,8 @@ impl Ripper {
         let algorithm = self.algorithm.as_ref().unwrap();
         let encoder = algorithm.get_encoder();
 
-        for word in self.word_list.iter() {
-            self.word_list_progress += 1;
-            let digest = encoder.encode(word);
+        for word in &mut self.dictionary {
+            let digest = encoder.encode(&word);
             if digest == self.input {
                 self.word_match = Some(word.clone());
                 break;
@@ -82,11 +116,11 @@ impl Ripper {
     }
 
     pub fn get_word_list_count(&self) -> usize {
-        self.word_list.len()
+        self.dictionary.len()
     }
 
     pub fn get_progress(&self) -> usize {
-        self.word_list_progress
+        self.dictionary.index
     }
 
     pub fn get_match(&self) -> String {
@@ -102,8 +136,8 @@ impl Ripper {
     fn reset(&mut self) {
         self.word_match = None;
         self.elapsed_seconds = None;
-        self.word_list_progress = 0;
-    }    
+        self.dictionary.index = 0;
+    }
 }
 
 #[cfg(test)]
@@ -130,14 +164,12 @@ mod tests {
     fn reset_clear_result() {
         let mut cracker = Ripper::new();
         cracker.word_match = Some("match".to_string());
-        cracker.word_list_progress = 500;
         cracker.reset();
 
         assert_eq!(None, cracker.word_match);
         assert_eq!(None, cracker.elapsed_seconds);
         assert_eq!(0.0, cracker.get_elapsed_seconds());
         assert_eq!(true, cracker.get_match().is_empty());
-        assert_eq!(0, cracker.word_list_progress);
         assert_eq!(0, cracker.get_progress());
     }
 
