@@ -20,7 +20,8 @@ mem.then(m => {
             return new Promise((resolve, reject) => {
                 txtResult.value = "";
                 txtPwdOutput.value = "";
-                txtWordProgress.value = ""; 
+                txtWordProgress.value = "";
+                txtElapsedTime.value = "";
                 resolve();
             });
         };
