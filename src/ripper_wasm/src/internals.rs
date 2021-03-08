@@ -4,6 +4,13 @@ pub mod core {
         index: usize
     }
 
+    pub struct Inner {
+        pub input: String,
+        pub dictionary: Dictionary,
+        pub word_match: Option<String>,
+        pub elapsed_seconds: Option<f64>,
+    }
+
     impl Dictionary {
         pub fn load(&mut self, entries: String) {
             self.word_list = entries
@@ -57,11 +64,46 @@ pub mod core {
             }
         }
     }
+
+    impl Inner {
+        pub fn reset(&mut self) {
+            self.word_match = None;
+            self.elapsed_seconds = None;
+            self.dictionary.start();
+        }
+    
+        pub fn get_word_list_count(&self) -> usize {
+            self.dictionary.len()
+        }
+    
+        pub fn get_match(&self) -> String {
+            self.word_match.clone().unwrap_or_default()
+        }
+    
+        pub fn get_elapsed_seconds(&self) -> f64 {
+            self.elapsed_seconds.unwrap_or(0.0)
+        }
+    
+        pub fn load_word_entries(&mut self, entries: String) {
+            self.dictionary.load(entries)
+        }
+    }
+    
+    impl Default for Inner {
+        fn default() -> Self {
+            Inner {
+                dictionary: Dictionary::default(),
+                input: String::default(),
+                word_match: None,
+                elapsed_seconds: None,
+            }
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::internals::core::Dictionary;
+    use crate::internals::core::*;
 
     #[test]
     fn iterate_when_empty_returns_none() {
@@ -116,5 +158,17 @@ mod tests {
 
         dictionary.load(WORD_LIST_TWO.to_string());
         assert_eq!(4, dictionary.len());
+    }
+
+    #[test]
+    fn reset_clear_result() {
+        let mut inner = Inner::default();
+        inner.word_match = Some("match".to_string());
+        inner.reset();
+
+        assert_eq!(None, inner.word_match);
+        assert_eq!(None, inner.elapsed_seconds);
+        assert_eq!(0.0, inner.get_elapsed_seconds());
+        assert_eq!(true, inner.get_match().is_empty());
     }
 }

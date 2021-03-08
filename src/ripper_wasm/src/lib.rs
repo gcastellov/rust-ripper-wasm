@@ -25,13 +25,6 @@ pub struct SymetricRipper {
     key_dictionary: Dictionary,
 }
 
-struct Inner {
-    input: String,
-    dictionary: Dictionary,
-    word_match: Option<String>,
-    elapsed_seconds: Option<f64>,
-}
-
 #[wasm_bindgen]
 impl SymetricRipper {
     
@@ -192,41 +185,6 @@ impl Clone for HashRipper {
     }
 }
 
-impl Inner {
-    fn reset(&mut self) {
-        self.word_match = None;
-        self.elapsed_seconds = None;
-        self.dictionary.start();
-    }
-
-    fn get_word_list_count(&self) -> usize {
-        self.dictionary.len()
-    }
-
-    fn get_match(&self) -> String {
-        self.word_match.clone().unwrap_or_default()
-    }
-
-    fn get_elapsed_seconds(&self) -> f64 {
-        self.elapsed_seconds.unwrap_or(0.0)
-    }
-
-    fn load_word_entries(&mut self, entries: String) {
-        self.dictionary.load(entries)
-    }
-}
-
-impl Default for Inner {
-    fn default() -> Self {
-        Inner {
-            dictionary: Dictionary::default(),
-            input: String::default(),
-            word_match: None,
-            elapsed_seconds: None,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
 
@@ -254,18 +212,6 @@ mod tests {
         )*
         }
     }
-
-    #[wasm_bindgen_test]
-    fn reset_clear_result() {
-        let mut inner = Inner::default();
-        inner.word_match = Some("match".to_string());
-        inner.reset();
-
-        assert_eq!(None, inner.word_match);
-        assert_eq!(None, inner.elapsed_seconds);
-        assert_eq!(0.0, inner.get_elapsed_seconds());
-        assert_eq!(true, inner.get_match().is_empty());
-    }    
 
     try_match_tests! {
         match_md4: ("3B9AFF425FA5F33A77B0DC569AB4FE60", HashAlgorithm::Md4),
