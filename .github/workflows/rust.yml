@@ -30,6 +30,6 @@ jobs:
     steps:
     - uses: jetli/wasm-pack-action@v0.3.0
     - name: wasm-pack-action
-      run: wasm-pack build
+      run: /home/runner/.cargo/bin/wasm-pack/wasm-pack build
       working-directory: ./src/ripper_wasm
 
