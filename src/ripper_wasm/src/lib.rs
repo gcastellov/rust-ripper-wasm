@@ -1,5 +1,6 @@
 use crate::algorithms::implementations::{EncoderFactory, Algorithm};
 use wasm_bindgen::prelude::*;
+use std::collections::HashMap;
 
 extern crate js_sys;
 extern crate base64;
@@ -17,6 +18,7 @@ pub struct Ripper {
     word_match: Option<String>,
     algorithm: Option<Algorithm>,
     elapsed_seconds: Option<f64>,
+    dictionar_lists: HashMap<String, String>,
 }
 
 struct Dictionary {
@@ -72,7 +74,26 @@ impl Ripper {
             word_match: None,
             algorithm: None,
             elapsed_seconds: None,
+            dictionar_lists: HashMap::default(),
         }
+    }
+
+    pub fn has_dictionary(&self, key: String) -> bool {
+        self.dictionar_lists.contains_key(&key)
+    }
+
+    pub fn add_dictionary(&mut self, key: &str, value: &str) {
+        self.dictionar_lists.insert(key.to_string(), value.to_string());
+    }
+
+    pub fn load_dictionaries(&mut self, keys: Vec<JsValue>) {
+        let entries: String = keys
+            .iter()
+            .filter_map(|k|k.as_string()) 
+            .filter_map(|key|self.dictionar_lists.get(&key))
+            .fold(String::default(), |a,b| a + b);
+
+        self.dictionary.load(entries);
     }
 
     pub fn set_input(&mut self, input: &str) {
@@ -84,10 +105,6 @@ impl Ripper {
 
     pub fn set_algorithm(&mut self, algorithm: Algorithm) {
         self.algorithm = Some(algorithm);
-    }
-
-    pub fn load_word_entries(&mut self, entries: String) {
-        self.dictionary.load(entries);
     }
 
     pub fn try_match(&mut self) -> bool {
@@ -145,15 +162,21 @@ mod tests {
 
     #![cfg(target_arch = "wasm32")]
     extern crate wasm_bindgen_test;
+    use wasm_bindgen::prelude::*;
     use wasm_bindgen_test::*;
     use crate::Ripper;    
     use crate::Algorithm;
+
+    const ENGLISH_KEY: &str = "english";
         
     fn compute(input: &str, algorithm: Algorithm) {
         const WORD_LIST: &str = "one\r\ntwo\r\nmy_word\r\nthree";
+        let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
+
         let mut cracker: Ripper = Ripper::new();
         cracker.set_algorithm(algorithm);
-        cracker.load_word_entries(WORD_LIST.to_string());
+        cracker.add_dictionary(ENGLISH_KEY, WORD_LIST);
+        cracker.load_dictionaries(dictionary_lists);
         cracker.set_input(input);
         
         assert_eq!(true, cracker.try_match());
@@ -176,27 +199,33 @@ mod tests {
     #[wasm_bindgen_test]
     fn load_word_entries_filter_empty_lines() {
         const WORD_LIST: &str = "\r\n";
+        let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
 
         let mut cracker: Ripper = Ripper::new();
-        cracker.load_word_entries(WORD_LIST.to_string());
+        cracker.add_dictionary(ENGLISH_KEY, WORD_LIST);
+        cracker.load_dictionaries(dictionary_lists);
         assert_eq!(0, cracker.get_word_list_count());
     }
 
     #[wasm_bindgen_test]
     fn load_word_entries_using_new_line_style() {
         const WORD_LIST: &str = "one\ntwo\nthree";
+        let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
 
         let mut cracker: Ripper = Ripper::new();
-        cracker.load_word_entries(WORD_LIST.to_string());
+        cracker.add_dictionary(ENGLISH_KEY, WORD_LIST);
+        cracker.load_dictionaries(dictionary_lists);
         assert_eq!(3, cracker.get_word_list_count());
     }
 
     #[wasm_bindgen_test]
     fn load_word_entries_combining_new_line_style() {
         const WORD_LIST: &str = "one\r\ntwo\nthree\r\nfour";
+        let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
 
         let mut cracker: Ripper = Ripper::new();
-        cracker.load_word_entries(WORD_LIST.to_string());
+        cracker.add_dictionary(ENGLISH_KEY, WORD_LIST);
+        cracker.load_dictionaries(dictionary_lists);
         assert_eq!(4, cracker.get_word_list_count());
     }
     
@@ -204,12 +233,16 @@ mod tests {
     fn load_word_entries_reset_values() {
         const WORD_LIST_ONE: &str = "one\r\ntwo\r\nthree";
         const WORD_LIST_TWO: &str = "one\r\ntwo\r\nthree\r\nfour";
+        let dictionary_lists_one: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
+        let dictionary_lists_two: Vec<JsValue> = vec![ JsValue::from_str("french") ];
 
         let mut cracker: Ripper = Ripper::new();
-        cracker.load_word_entries(WORD_LIST_ONE.to_string());
+        cracker.add_dictionary(ENGLISH_KEY, WORD_LIST_ONE);
+        cracker.load_dictionaries(dictionary_lists_one);
         assert_eq!(3, cracker.get_word_list_count());
 
-        cracker.load_word_entries(WORD_LIST_TWO.to_string());
+        cracker.add_dictionary("french", WORD_LIST_TWO);
+        cracker.load_dictionaries(dictionary_lists_two);
         assert_eq!(4, cracker.get_word_list_count());
     }
 

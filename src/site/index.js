@@ -70,17 +70,19 @@ mem.then(m => {
         };
 
         const updateDictionarySelection = async () => {
-            var wordEntries = "";        
+   
             const dictionaries = getSelectedDictionaries();
-            const promises = dictionaries.map(dictionary => {
-                return fetch(`./assets/${dictionary}`)
-                    .then(r => r.text())
-                    .then(text => wordEntries = wordEntries.concat(text))
-            });
+            const promises = dictionaries
+                .filter(dictionary => !ripper.has_dictionary(dictionary))
+                .map(dictionary => {
+                    return fetch(`./assets/${dictionary}`)
+                        .then(r => r.text())
+                        .then(text => ripper.add_dictionary(dictionary, text));
+                });
 
             await Promise.all(promises);
 
-            ripper.load_word_entries(wordEntries);
+            ripper.load_dictionaries(dictionaries);
             txtWordListCount.value = ripper.get_word_list_count();
         };
 
