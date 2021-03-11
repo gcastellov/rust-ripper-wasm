@@ -22,3 +22,14 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
       working-directory: ./src/ripper_wasm
+
+  pack:
+  
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: jetli/wasm-pack-action@v0.3.0
+    - name: wasm-pack-action
+      run: wasm-pack build
+      working-directory: ./src/ripper_wasm
+
