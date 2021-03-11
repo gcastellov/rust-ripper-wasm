@@ -19,17 +19,16 @@ jobs:
     - name: Build
       run: cargo build --verbose
       working-directory: ./src/ripper_wasm
-    - name: Run tests
-      run: cargo test --verbose
-      working-directory: ./src/ripper_wasm
 
-  pack:
-  
+  test:
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: jetli/wasm-pack-action@v0.3.0
-    - name: wasm-pack-action
-      run: /home/runner/.cargo/bin/wasm-pack/wasm-pack build
-      working-directory: ./src/ripper_wasm
+      - uses: actions/checkout@v2
+      - name: Install
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - run: cargo test
+        working-directory: ./src/ripper_wasm
+      - run: wasm-pack test --node
+        working-directory: ./src/ripper_wasm
 
