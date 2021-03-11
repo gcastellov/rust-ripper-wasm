@@ -1,3 +1,5 @@
+[![Rust](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/rust.yml)
+
 # WASM rust the ripper 
 Password cracker made in WASM Rust, inspired by the popular John the Ripper.
 The app uses a collection of password dictionaries and different algorithms to perform a brute attack in order to get the ciphered password.
