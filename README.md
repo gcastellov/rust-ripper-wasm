@@ -56,6 +56,14 @@ npm run serve
 
 Enjoy
 
+## Docker
+```
+docker build -t rust-ripper-wasm .
+```
+```
+docker run -p 8080:80 rust-ripper-wasm
+```
+
 <br/>
 
 ## License
