@@ -1,5 +1,5 @@
-const js = import("./node_modules/ripper_wasm/ripper_wasm.js");
-const mem =  import("./node_modules/ripper_wasm/ripper_wasm_bg.wasm");
+const js = import("./node_modules/rust_ripper_wasm/rust_ripper_wasm.js");
+const mem =  import("./node_modules/rust_ripper_wasm/rust_ripper_wasm_bg.wasm");
 
 const txtWordProgress = document.getElementById("txtWordProgress");
 const txtResult = document.getElementById("txtResult");

@@ -17,7 +17,7 @@ RUN wasm-pack build
 WORKDIR /app/ripper_wasm/pkg
 RUN npm link
 WORKDIR /app/site
-RUN npm link ripper_wasm && npm install && npm run build-prod
+RUN npm link rust_ripper_wasm && npm install && npm run build-prod
 
 FROM nginx:1.19.8-alpine
 COPY ./docker/mime.types /etc/nginx/mime.types
