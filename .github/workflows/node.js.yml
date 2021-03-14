@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         node-version: [15.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/        
 
     steps:
     - uses: actions/checkout@v2
@@ -32,11 +32,12 @@ jobs:
     - name: Build npm wasm package
       run: wasm-pack build
       working-directory: ./src/ripper_wasm
-      
-    - name: Npm cache clean
-      run: npm cache clean --force
-      working-directory: ./src/site
-      
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}      
+           
     - name: Npm symlink
       run: sudo npm link
       working-directory: ./src/ripper_wasm/pkg
@@ -45,12 +46,11 @@ jobs:
       run: npm link rust_ripper_wasm
       working-directory: ./src/site
       
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}      
-    - run: npm install
+    - name: Install dependencies
+      run: npm install
       working-directory: ./src/site
-    - run: npm run build
+    
+    - name: Pack site
+      run: npm run build
       working-directory: ./src/site
     - run: npm test
