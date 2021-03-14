@@ -3,7 +3,6 @@
 # WASM rust the ripper 
 Password cracker made in WASM Rust, inspired by the popular John the Ripper.
 The app uses a collection of password dictionaries and different algorithms to perform a brute attack in order to get the ciphered password.
-<br/>
 
 ## Available algorithms
 Please, refer to each crate documentation and check its licensing.
@@ -41,7 +40,7 @@ Link locally the NPM package
 # cd pkg
 # npm link
 # cd /src/site
-# npm link ripper_wasm
+# npm link rust_ripper_wasm
 ```
 
 Install NPM dependecies
@@ -58,7 +57,6 @@ Run
 # docker build -f ./docker/Dockerfile  -t rust-ripper-wasm .
 # docker run -p 8080:80 rust-ripper-wasm
 ```
-
 
 ## License
 This project is licensed under the terms of the MIT license. 
