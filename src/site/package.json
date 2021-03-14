@@ -5,7 +5,7 @@
     "build-prod": "webpack -p"
   },
   "dependencies": {
-    "ripper_wasm": "^0.1.0"
+    "rust_ripper_wasm": "^0.1.0"
   },
   "devDependencies": {
     "webpack": "^4.46.0",
