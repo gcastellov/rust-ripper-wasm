@@ -19,7 +19,7 @@ RUN npm link
 WORKDIR /app/site
 RUN npm link ripper_wasm && npm install && npm run build-prod
 
-FROM nginx:latest
+FROM nginx:1.19.8-alpine
 COPY ./docker/mime.types /etc/nginx/mime.types
 COPY --from=build_final app/site/assets/. /usr/share/nginx/html/assets/
 COPY --from=build_final app/site/dist/. /usr/share/nginx/html/dist/
