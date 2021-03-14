@@ -28,8 +28,8 @@ jobs:
       run: wasm-pack build
       working-directory: ./src/ripper_wasm
       
-    - name: Npm link locally
-      run: npm link
+    - name: Npm symlink
+      run: sudo npm link
       working-directory: ./src/ripper_wasm/pkg
       
     - name: Npm link wasm package
