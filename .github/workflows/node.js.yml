@@ -33,6 +33,10 @@ jobs:
       run: wasm-pack build
       working-directory: ./src/ripper_wasm
       
+    - name: Npm cache clean
+      run: npm cache clean --force
+      working-directory: ./src/site
+      
     - name: Npm symlink
       run: sudo npm link
       working-directory: ./src/ripper_wasm/pkg
