@@ -26,44 +26,39 @@ Please, refer to each crate documentation and check its licensing.
 
 Download and install **wasm-pack** in case you don't have it.
 ```
-cd /src/ripper_wasm
-cargo install wasm-pack
+# cd /src/ripper_wasm
+# cargo install wasm-pack
 ```
 
 Generate the WASM package
 ```
-cargo build
-wasm-pack build
+# cargo build
+# wasm-pack build
 ```
 
 Link locally the NPM package
 ```
-cd pkg
-npm link
-cd /src/site
-npm link ripper_wasm
+# cd pkg
+# npm link
+# cd /src/site
+# npm link ripper_wasm
 ```
 
 Install NPM dependecies
 ```
-npm install
+# npm install
 ```
 
 Run
 ```
-npm run serve
+# npm run serve
 ```
-## Docker
+## Building and running docker
 ```
-docker build -f ./Docker/Dockerfile  -t rust-ripper-wasm .
-```
-```
-docker run -p 8080:80 rust-ripper-wasm
+# docker build -f ./docker/Dockerfile  -t rust-ripper-wasm .
+# docker run -p 8080:80 rust-ripper-wasm
 ```
 
-Enjoy
-
-<br/>
 
 ## License
 This project is licensed under the terms of the MIT license. 
