@@ -6,7 +6,7 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
 
 FROM build_rust AS build_rust_node
 WORKDIR /app
-ADD ./src /app  
+COPY ./../src /app
 
 FROM build_rust_node AS build_wasm
 RUN cargo install wasm-pack
