@@ -53,6 +53,13 @@ Run
 ```
 npm run serve
 ```
+## Docker
+```
+docker build -f ./Docker/Dockerfile  -t rust-ripper-wasm .
+```
+```
+docker run -p 8080:80 rust-ripper-wasm
+```
 
 Enjoy
 
