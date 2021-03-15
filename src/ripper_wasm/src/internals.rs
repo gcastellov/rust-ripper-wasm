@@ -1,4 +1,7 @@
 pub mod core {
+    
+    use std::collections::HashMap;
+
     pub struct Dictionary {
         word_list: Vec<String>,
         index: usize
@@ -7,6 +10,7 @@ pub mod core {
     pub struct Inner {
         pub input: String,
         pub dictionary: Dictionary,
+        pub dictionary_cache: HashMap<String, String>,
         pub word_match: Option<String>,
         pub elapsed_seconds: Option<f64>,
     }
@@ -84,8 +88,21 @@ pub mod core {
             self.elapsed_seconds.unwrap_or(0.0)
         }
     
-        pub fn load_word_entries(&mut self, entries: String) {
+        pub fn load_dictionaries(&mut self, keys: Vec<String>) {
+            let entries: String = keys
+                .iter()
+                .filter_map(|key|self.dictionary_cache.get(key))
+                .fold(String::default(), |a,b| a + b);
+    
             self.dictionary.load(entries)
+        }
+
+        pub fn has_dictionary(&self, key: String) -> bool {
+            self.dictionary_cache.contains_key(&key)
+        }
+    
+        pub fn add_dictionary(&mut self, key: &str, value: &str) {
+            self.dictionary_cache.insert(key.to_string(), value.to_string());
         }
     }
     
@@ -93,6 +110,7 @@ pub mod core {
         fn default() -> Self {
             Inner {
                 dictionary: Dictionary::default(),
+                dictionary_cache: HashMap::default(),
                 input: String::default(),
                 word_match: None,
                 elapsed_seconds: None,

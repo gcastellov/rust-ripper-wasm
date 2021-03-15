@@ -1,5 +1,5 @@
-const js = import("./node_modules/ripper_wasm/ripper_wasm.js");
-const mem =  import("./node_modules/ripper_wasm/ripper_wasm_bg.wasm");
+const js = import("./node_modules/rust_ripper_wasm/rust_ripper_wasm.js");
+const mem =  import("./node_modules/rust_ripper_wasm/rust_ripper_wasm_bg.wasm");
 
 const txtWordProgress = document.getElementById("txtWordProgress");
 const txtResult = document.getElementById("txtResult");
@@ -70,17 +70,19 @@ mem.then(m => {
         };
 
         const updateDictionarySelection = async () => {
-            var wordEntries = "";        
+   
             const dictionaries = getSelectedDictionaries();
-            const promises = dictionaries.map(dictionary => {
-                return fetch(`./assets/${dictionary}`)
-                    .then(r => r.text())
-                    .then(text => wordEntries = wordEntries.concat(text))
-            });
+            const promises = dictionaries
+                .filter(dictionary => !ripper.has_dictionary(dictionary))
+                .map(dictionary => {
+                    return fetch(`./assets/${dictionary}`)
+                        .then(r => r.text())
+                        .then(text => ripper.add_dictionary(dictionary, text));
+                });
 
             await Promise.all(promises);
 
-            ripper.load_word_entries(wordEntries);
+            ripper.load_dictionaries(dictionaries);
             txtWordListCount.value = ripper.get_word_list_count();
         };
 

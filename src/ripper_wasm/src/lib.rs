@@ -45,8 +45,21 @@ impl SymetricRipper {
         self.algorithm = Some(algorithm);
     }
 
-    pub fn load_word_entries(&mut self, entries: String) {
-        self.inner.load_word_entries(entries);
+    pub fn has_dictionary(&self, key: String) -> bool {
+        self.inner.has_dictionary(key)
+    }
+
+    pub fn add_dictionary(&mut self, key: &str, value: &str) {
+        self.inner.add_dictionary(key, value)
+    }
+
+    pub fn load_dictionaries(&mut self, keys: Vec<JsValue>) {        
+        let keys_as_string = keys
+            .iter()
+            .filter_map(|k|k.as_string())
+            .collect();
+
+        self.inner.load_dictionaries(keys_as_string);
     }
 
     pub fn try_match(&mut self) -> bool {
@@ -114,6 +127,23 @@ impl HashRipper {
         }
     }
 
+    pub fn has_dictionary(&self, key: String) -> bool {
+        self.inner.has_dictionary(key)
+    }
+
+    pub fn add_dictionary(&mut self, key: &str, value: &str) {
+        self.inner.add_dictionary(key, value)
+    }
+
+    pub fn load_dictionaries(&mut self, keys: Vec<JsValue>) {        
+        let keys_as_string = keys
+            .iter()
+            .filter_map(|k|k.as_string())
+            .collect();
+
+        self.inner.load_dictionaries(keys_as_string);
+    }
+
     pub fn set_input(&mut self, input: &str) {
         self.inner.input = match self.algorithm {
             Some(HashAlgorithm::Base64) => input.to_string(),
@@ -123,10 +153,6 @@ impl HashRipper {
 
     pub fn set_algorithm(&mut self, algorithm: HashAlgorithm) {
         self.algorithm = Some(algorithm);
-    }
-
-    pub fn load_word_entries(&mut self, entries: String) {
-        self.inner.load_word_entries(entries);
     }
 
     pub fn try_match(&mut self) -> bool {
@@ -178,6 +204,7 @@ impl Clone for HashRipper {
             inner: Inner {
                 input: self.inner.input.clone(),
                 dictionary: self.inner.dictionary.clone(),
+                dictionary_cache: self.inner.dictionary_cache.clone(),
                 elapsed_seconds: None,
                 word_match: None,
             }
@@ -190,8 +217,11 @@ mod tests {
 
     #![cfg(target_arch = "wasm32")]
     extern crate wasm_bindgen_test;
+    use wasm_bindgen::prelude::*;
     use wasm_bindgen_test::*;
     use super::*;
+
+    const ENGLISH_KEY: &str = "english";
         
     macro_rules! try_match_tests {
         ($($name:ident: $value:expr,)*) => {
@@ -199,11 +229,13 @@ mod tests {
             #[wasm_bindgen_test]
             fn $name() {
                 let (input, algorithm) = $value;
-
                 const WORD_LIST: &str = "one\r\ntwo\r\nmy_word\r\nthree";
+                let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
+
                 let mut cracker: HashRipper = HashRipper::new();
                 cracker.set_algorithm(algorithm);
-                cracker.load_word_entries(WORD_LIST.to_string());
+                cracker.add_dictionary(ENGLISH_KEY, WORD_LIST);
+                cracker.load_dictionaries(dictionary_lists);
                 cracker.set_input(input);
                 
                 assert_eq!(true, cracker.try_match());

@@ -1,5 +1,5 @@
 [package]
-name = "ripper_wasm"
+name = "rust_ripper_wasm"
 version = "0.1.0"
 authors = ["gcastellov <dreeyfus20@hotmail.com>"]
 edition = "2018"

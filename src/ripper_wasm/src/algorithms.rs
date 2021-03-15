@@ -51,8 +51,7 @@ pub mod implementations {
                 HashAlgorithm::Sha256 => Some(&Sha256Wrapper { }),
                 HashAlgorithm::Base64 => Some(&Base64Wrapper { }),
                 HashAlgorithm::Md4 => Some(&Md4Wrapper { }),
-                HashAlgorithm::Sha1 => Some(&Sha1Wrapper { }),
-                _ => None,
+                HashAlgorithm::Sha1 => Some(&Sha1Wrapper { })
             }
         }
     }
@@ -61,8 +60,7 @@ pub mod implementations {
         fn get_encoder(&self) -> Option<&dyn SymetricEncoder> { 
             match self {
                 SymetricAlgorithm::Des => Some(&DesWrapper { }),
-                SymetricAlgorithm::Des3 => Some(&Des3Wrapper { }),
-                _ => None,
+                SymetricAlgorithm::Des3 => Some(&Des3Wrapper { })
             }
         }
     }
@@ -105,13 +103,13 @@ pub mod implementations {
     }
 
     impl SymetricEncoder for DesWrapper {        
-        fn encode(&self, key: &String, input: &String) -> String { 
+        fn encode(&self, _key: &String, _input: &String) -> String { 
             todo!() 
         }
     }
 
     impl SymetricEncoder for Des3Wrapper {        
-        fn encode(&self, key: &String, input: &String) -> String { 
+        fn encode(&self, _key: &String, _input: &String) -> String { 
             todo!() 
         }
     }
