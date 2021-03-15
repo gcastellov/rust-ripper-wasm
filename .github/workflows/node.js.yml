@@ -1,6 +1,3 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
 name: Node.js CI
 
 on:
@@ -36,17 +33,11 @@ jobs:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}      
-           
-    - run: sudo npm link
-      working-directory: ./src/ripper_wasm/pkg
-      
-    - run: npm link rust_ripper_wasm
-      working-directory: ./src/site
-      
-    - run: npm install
-      working-directory: ./src/site
-    
-    - run: npm run build
-      working-directory: ./src/site
-    - run: npm test
+        node-version: ${{ matrix.node-version }}
+        script: |
+          cd ./src/ripper_wasm/pkg
+          sudo npm link
+          cd ../../site
+          sudo npm link rust_ripper_wasm
+          npm install
+          npm run build
