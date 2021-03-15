@@ -38,19 +38,15 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}      
            
-    - name: Npm symlink
-      run: sudo npm link
+    - run: sudo npm link
       working-directory: ./src/ripper_wasm/pkg
       
-    - name: Npm link wasm package
-      run: npm link rust_ripper_wasm
+    - run: npm link rust_ripper_wasm
       working-directory: ./src/site
       
-    - name: Install dependencies
-      run: npm install
+    - run: npm install
       working-directory: ./src/site
     
-    - name: Pack site
-      run: npm run build
+    - run: npm run build
       working-directory: ./src/site
     - run: npm test
