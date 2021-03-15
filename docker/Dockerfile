@@ -6,7 +6,7 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
 
 FROM build_rust AS build_rust_node
 WORKDIR /app
-COPY ./../src /app
+COPY ./src /app
 
 FROM build_rust_node AS build_wasm
 RUN curl -sL https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
