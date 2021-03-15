@@ -14,7 +14,7 @@ mem.then(m => {
         const txtWordListCount = document.getElementById("txtWordListCount");
         const txtPwdOutput = document.getElementById("txtPwdOutput");
         const txtElapsedTime = document.getElementById("txtElapsedTime");
-        var ripper = new j.Ripper();
+        var ripper = new j.HashRipper();
 
         const clean = () => {
             return new Promise((resolve, reject) => {
