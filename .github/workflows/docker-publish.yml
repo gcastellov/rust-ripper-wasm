@@ -51,3 +51,6 @@ jobs:
 
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+          
+      - name: Call deployment webhook
+        run: curl -X POST -u {{ secrets.AZURE_WEBHOOK_USERNAME }}:{{ secrets.AZURE_WEBHOOK_PWD }} {{ secrets.AZURE_WEBHOOK_URL }} -d -H
