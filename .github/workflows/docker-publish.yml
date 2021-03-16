@@ -57,5 +57,5 @@ jobs:
           USERNAME=${{secrets.AZURE_WEBHOOK_USERNAME}}
           TOKEN=${{secrets.AZURE_WEBHOOK_PWD}}
           URL=${{secrets.AZURE_WEBHOOK_URL}}
-          curl -X POST -u $USERNAME:$TOKEN $URL -d -H
+          curl -X POST -u $USERNAME:$TOKEN $URL -d -H > /dev/null
 
