@@ -53,4 +53,9 @@ jobs:
           docker push $IMAGE_ID:$VERSION
           
       - name: Call deployment webhook
-        run: curl -X POST -u ${{ secrets.AZURE_WEBHOOK_USERNAME }}:${{ secrets.AZURE_WEBHOOK_PWD }} ${{ secrets.AZURE_WEBHOOK_URL }} -d -H
+        run: | 
+          USERNAME=${{secrets.AZURE_WEBHOOK_USERNAME}}
+          TOKEN=${{secrets.AZURE_WEBHOOK_PWD}}
+          URL=${{secrets.AZURE_WEBHOOK_URL}}
+          curl -X POST -u $USERNAME:$TOKEN $URL -d -H
+
