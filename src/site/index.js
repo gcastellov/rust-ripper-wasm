@@ -3,6 +3,11 @@ const mem =  import("./node_modules/rust_ripper_wasm/rust_ripper_wasm_bg.wasm");
 
 const txtWordProgress = document.getElementById("txtWordProgress");
 const txtResult = document.getElementById("txtResult");
+const lblVersion = document.getElementById("lblVersion");
+
+lblVersion.innerHTML = APP_VERSION;
+
+// console.log(process.env);
 
 mem.then(m => {
     const memory = m.memory;
