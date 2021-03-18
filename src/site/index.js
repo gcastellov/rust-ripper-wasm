@@ -84,6 +84,7 @@ mem.then(m => {
         };
 
         const updateDictionarySelection = async () => {
+            const release = await mutex.acquire();
             const dictionaries = getSelectedDictionaries();
             const promises = dictionaries
                 .filter(dictionary => !ripper.has_dictionary(dictionary))
@@ -95,7 +96,6 @@ mem.then(m => {
 
             await Promise.all(promises);
 
-            const release = await mutex.acquire();
             ripper.load_dictionaries(dictionaries);
             txtWordListCount.value = ripper.get_word_list_count();
             release();
