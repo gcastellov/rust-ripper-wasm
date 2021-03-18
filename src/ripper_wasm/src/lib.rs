@@ -205,6 +205,7 @@ impl Clone for HashRipper {
                 input: self.inner.input.clone(),
                 dictionary: self.inner.dictionary.clone(),
                 dictionary_cache: self.inner.dictionary_cache.clone(),
+                dictionary_selection: self.inner.dictionary_selection.clone(),
                 elapsed_seconds: None,
                 word_match: None,
             }

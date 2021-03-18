@@ -1,3 +1,4 @@
+import {Mutex} from "async-mutex";
 const js = import("./node_modules/rust_ripper_wasm/rust_ripper_wasm.js");
 const mem =  import("./node_modules/rust_ripper_wasm/rust_ripper_wasm_bg.wasm");
 
@@ -7,7 +8,13 @@ const lblVersion = document.getElementById("lblVersion");
 
 lblVersion.innerHTML = APP_VERSION;
 
-// console.log(process.env);
+const debounce = (callback, delay) => {
+    let timeout;
+    return function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(callback, delay);
+    }
+};
 
 mem.then(m => {
     const memory = m.memory;
@@ -19,7 +26,9 @@ mem.then(m => {
         const txtWordListCount = document.getElementById("txtWordListCount");
         const txtPwdOutput = document.getElementById("txtPwdOutput");
         const txtElapsedTime = document.getElementById("txtElapsedTime");
-        var ripper = new j.HashRipper();
+        
+        let mutex = new Mutex();
+        let ripper = new j.HashRipper();
 
         const clean = () => {
             return new Promise((resolve, reject) => {
@@ -75,7 +84,6 @@ mem.then(m => {
         };
 
         const updateDictionarySelection = async () => {
-   
             const dictionaries = getSelectedDictionaries();
             const promises = dictionaries
                 .filter(dictionary => !ripper.has_dictionary(dictionary))
@@ -87,8 +95,10 @@ mem.then(m => {
 
             await Promise.all(promises);
 
+            const release = await mutex.acquire();
             ripper.load_dictionaries(dictionaries);
             txtWordListCount.value = ripper.get_word_list_count();
+            release();
         };
 
         await updateDictionarySelection();
@@ -97,6 +107,6 @@ mem.then(m => {
         button.addEventListener("click", execute);
 
         rbAlgorithm.forEach(element => element.addEventListener("change", clean));
-        ckDictionaries.forEach(element => element.addEventListener("change", updateDictionarySelection));
+        ckDictionaries.forEach(element => element.addEventListener("change", debounce(updateDictionarySelection, 2000)));
     });
 });
