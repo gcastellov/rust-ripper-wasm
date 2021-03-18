@@ -6,7 +6,7 @@ const dotenv = require('dotenv').config({
 
 module.exports = () => {
 
-  console.log("Building version:" + dotenv.parsed.VERSION);
+  console.log(`Building version: ${dotenv.parsed.VERSION}`);
 
   return {
     entry: "./index.js",

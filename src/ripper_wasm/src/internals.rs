@@ -13,6 +13,7 @@ pub mod core {
         pub dictionary_cache: HashMap<String, String>,
         pub word_match: Option<String>,
         pub elapsed_seconds: Option<f64>,
+        pub dictionary_selection: Vec<String>,
     }
 
     impl Dictionary {
@@ -89,12 +90,15 @@ pub mod core {
         }
     
         pub fn load_dictionaries(&mut self, keys: Vec<String>) {
-            let entries: String = keys
-                .iter()
-                .filter_map(|key|self.dictionary_cache.get(key))
-                .fold(String::default(), |a,b| a + b);
-    
-            self.dictionary.load(entries)
+            if self.dictionary_selection != keys {
+                self.dictionary_selection = keys;
+                let entries: String = self.dictionary_selection
+                    .iter()
+                    .filter_map(|key|self.dictionary_cache.get(key))
+                    .fold(String::default(), |a,b| a + b);
+        
+                self.dictionary.load(entries)
+            }
         }
 
         pub fn has_dictionary(&self, key: String) -> bool {
@@ -111,6 +115,7 @@ pub mod core {
             Inner {
                 dictionary: Dictionary::default(),
                 dictionary_cache: HashMap::default(),
+                dictionary_selection: Vec::default(),
                 input: String::default(),
                 word_match: None,
                 elapsed_seconds: None,
@@ -189,4 +194,27 @@ mod tests {
         assert_eq!(0.0, inner.get_elapsed_seconds());
         assert_eq!(true, inner.get_match().is_empty());
     }
+
+    #[test]
+    fn loading_entries() {
+        const ENGLISH: &str = "english";
+        const SPANISH: &str = "spanish";
+
+        let keys_one: Vec<String> = vec![ String::from(ENGLISH) ];
+        let keys_two: Vec<String> = vec![ String::from(ENGLISH), String::from(SPANISH) ];
+
+        let mut inner = Inner::default();
+        inner.add_dictionary(ENGLISH, "aaaaaa\n");
+        inner.add_dictionary(SPANISH, "bbbbbb\n");
+
+        inner.load_dictionaries(keys_one.clone());
+        inner.load_dictionaries(keys_one.clone());
+        assert_eq!(1, inner.get_word_list_count());
+        
+        inner.load_dictionaries(keys_two);
+        assert_eq!(2, inner.get_word_list_count());
+
+        inner.load_dictionaries(keys_one);
+        assert_eq!(1, inner.get_word_list_count());
+    }    
 }
