@@ -21,11 +21,11 @@ pub mod implementations {
     }
 
     pub trait HashEncoderFactory {
-        fn get_encoder(&self) -> Option<&dyn HashEncoder>;
+        fn get_encoder(&self) -> Option<Box<dyn HashEncoder>>;
     }
 
     pub trait SymetricEncoderFactory {
-        fn get_encoder(&self) -> Option<&dyn SymetricEncoder>;
+        fn get_encoder(&self) -> Option<Box<dyn SymetricEncoder>>;
     }
     
     pub trait HashEncoder {
@@ -45,22 +45,22 @@ pub mod implementations {
     struct Des3Wrapper {}
 
     impl HashEncoderFactory for HashAlgorithm {
-        fn get_encoder(&self) -> Option<&dyn HashEncoder> { 
+        fn get_encoder(&self) -> Option<Box<dyn HashEncoder>> { 
             match self {
-                HashAlgorithm::Md5 => Some(&Md5Wrapper { }),
-                HashAlgorithm::Sha256 => Some(&Sha256Wrapper { }),
-                HashAlgorithm::Base64 => Some(&Base64Wrapper { }),
-                HashAlgorithm::Md4 => Some(&Md4Wrapper { }),
-                HashAlgorithm::Sha1 => Some(&Sha1Wrapper { })
+                HashAlgorithm::Md5 => Some(Box::new(Md5Wrapper { })),
+                HashAlgorithm::Sha256 => Some(Box::new(Sha256Wrapper { })),
+                HashAlgorithm::Base64 => Some(Box::new(Base64Wrapper { })),
+                HashAlgorithm::Md4 => Some(Box::new(Md4Wrapper { })),
+                HashAlgorithm::Sha1 => Some(Box::new(Sha1Wrapper { }))
             }
         }
     }
 
     impl SymetricEncoderFactory for SymetricAlgorithm {
-        fn get_encoder(&self) -> Option<&dyn SymetricEncoder> { 
+        fn get_encoder(&self) -> Option<Box<dyn SymetricEncoder>> { 
             match self {
-                SymetricAlgorithm::Des => Some(&DesWrapper { }),
-                SymetricAlgorithm::Des3 => Some(&Des3Wrapper { })
+                SymetricAlgorithm::Des => Some(Box::new(DesWrapper { })),
+                SymetricAlgorithm::Des3 => Some(Box::new(Des3Wrapper { }))
             }
         }
     }
@@ -126,7 +126,7 @@ mod tests {
             #[test]
             fn $name() {
                 let (input, expected) = $value;
-                let encoder: Option<&dyn HashEncoder> = input.get_encoder();
+                let encoder: Option<Box<dyn HashEncoder>> = input.get_encoder();
                 assert_eq!(encoder.is_some(), expected);
             }
         )*
@@ -139,7 +139,7 @@ mod tests {
             #[test]
             fn $name() {
                 let (input, expected) = $value;
-                let encoder: Option<&dyn SymetricEncoder> = input.get_encoder();
+                let encoder: Option<Box<dyn SymetricEncoder>> = input.get_encoder();
                 assert_eq!(encoder.is_some(), expected);
             }
         )*

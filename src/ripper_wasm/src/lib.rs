@@ -12,10 +12,13 @@ extern crate sha1;
 mod algorithms;
 mod internals;
 
+const CHUNK_SIZE: usize = 500;
+
 #[wasm_bindgen]
 pub struct HashRipper {
     inner: Inner,
     algorithm: Option<HashAlgorithm>,
+    encoder: Option<Box<dyn HashEncoder>>,
 }
 
 #[wasm_bindgen]
@@ -23,6 +26,7 @@ pub struct SymetricRipper {
     inner: Inner,
     algorithm: Option<SymetricAlgorithm>,
     key_dictionary: Dictionary,
+    encoder: Option<Box<dyn SymetricEncoder>>,
 }
 
 #[wasm_bindgen]
@@ -34,6 +38,7 @@ impl SymetricRipper {
             inner: Inner::default(),
             key_dictionary: Dictionary::default(),
             algorithm: None,
+            encoder: None,
         }
     }
 
@@ -62,34 +67,53 @@ impl SymetricRipper {
         self.inner.load_dictionaries(keys_as_string);
     }
 
-    pub fn try_match(&mut self) -> bool {
+    pub fn start_matching(&mut self) {
         self.inner.reset();
 
         if self.algorithm.is_none() {
             panic!("set algorithm first!");
         }
 
-        let starting = js_sys::Date::now();
+        self.inner.start_ticking();
         let algorithm = self.algorithm.as_ref().unwrap();
-        let encoder = algorithm.get_encoder().unwrap();
+        self.encoder = algorithm.get_encoder();
+    }
 
-        while let Some(key) = self.key_dictionary.next() {
-            self.inner.dictionary.start();
-            for word in &mut self.inner.dictionary {
-                let digest = encoder.encode(&key, &word);
+    pub fn check(&mut self, milliseconds: f64) -> bool {
+        let starting = js_sys::Date::now();
+        let encoder = self.encoder.as_ref().unwrap();
+        let mut current_key: String = String::default();
+        
+        if self.inner.dictionary.get_index() == 0 {
+            if let Some(key) = self.key_dictionary.next() {
+                current_key = key.clone();
+            } else {
+                return false;
+            }
+        }
+
+        while let Some(chunk) = self.inner.dictionary.get_chunk(CHUNK_SIZE) {
+            
+            let mut index = 0;
+            let mut current: Option<&String> = chunk.get(index);
+            
+            while self.inner.word_match.is_none() && current.is_some() {
+                let current_word = current.unwrap();
+                let digest = encoder.encode(current_word, &current_key);
                 if digest == self.inner.input {
-                    self.inner.word_match = Some(word.clone());
-                    break;
+                    self.inner.word_match = Some(current_word.clone());
                 }
-            }                        
-            if self.inner.word_match.is_some() {
+                
+                index += 1;
+                current = chunk.get(index);
+            }
+            
+            self.inner.dictionary.forward(CHUNK_SIZE);
+            if self.inner.word_match.is_some() || js_sys::Date::now() - starting > milliseconds {
                 break;
             }
         }
-        
-        let ending = js_sys::Date::now();
-        let elapsed = (ending - starting) / 1_000f64;
-        self.inner.elapsed_seconds = Some(elapsed);
+
         self.inner.word_match.is_some()
     }
 
@@ -124,6 +148,7 @@ impl HashRipper {
         HashRipper { 
             inner: Inner::default(),
             algorithm: None,
+            encoder: None,
         }
     }
 
@@ -155,28 +180,43 @@ impl HashRipper {
         self.algorithm = Some(algorithm);
     }
 
-    pub fn try_match(&mut self) -> bool {
+    pub fn start_matching(&mut self) {
         self.inner.reset();
 
         if self.algorithm.is_none() {
             panic!("set algorithm first!");
         }
 
-        let starting = js_sys::Date::now();
+        self.inner.start_ticking();
         let algorithm = self.algorithm.as_ref().unwrap();
-        let encoder = algorithm.get_encoder().unwrap();
+        self.encoder = algorithm.get_encoder();
+    }
 
-        for word in &mut self.inner.dictionary {
-            let digest = encoder.encode(&word);
-            if digest == self.inner.input {
-                self.inner.word_match = Some(word.clone());
+    pub fn check(&mut self, milliseconds: f64) -> bool {
+        let starting = js_sys::Date::now();
+        let encoder = self.encoder.as_ref().unwrap();
+
+        while let Some(chunk) = self.inner.dictionary.get_chunk(CHUNK_SIZE) {
+            let mut index = 0;
+            let mut current: Option<&String> = chunk.get(index);
+            
+            while self.inner.word_match.is_none() && current.is_some() {
+                let current_word = current.unwrap();
+                let digest = encoder.encode(current_word);
+                if digest == self.inner.input {
+                    self.inner.word_match = Some(current_word.clone());
+                }
+                
+                index += 1;
+                current = chunk.get(index);
+            }
+            
+            self.inner.dictionary.forward(CHUNK_SIZE);
+            if self.inner.word_match.is_some() || js_sys::Date::now() - starting > milliseconds {
                 break;
             }
         }
 
-        let ending = js_sys::Date::now();
-        let elapsed = (ending - starting) / 1_000f64;
-        self.inner.elapsed_seconds = Some(elapsed);
         self.inner.word_match.is_some()
     }
 
@@ -201,12 +241,13 @@ impl Clone for HashRipper {
     fn clone(&self) -> Self { 
         HashRipper {
             algorithm: self.algorithm.clone(),
+            encoder: None,
             inner: Inner {
                 input: self.inner.input.clone(),
                 dictionary: self.inner.dictionary.clone(),
                 dictionary_cache: self.inner.dictionary_cache.clone(),
                 dictionary_selection: self.inner.dictionary_selection.clone(),
-                elapsed_seconds: None,
+                starting_at: None,
                 word_match: None,
             }
         }
@@ -231,6 +272,7 @@ mod tests {
             fn $name() {
                 let (input, algorithm) = $value;
                 const WORD_LIST: &str = "one\r\ntwo\r\nmy_word\r\nthree";
+                const MILLIS: f64 = 500f64;
                 let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
 
                 let mut cracker: HashRipper = HashRipper::new();
@@ -238,8 +280,9 @@ mod tests {
                 cracker.add_dictionary(ENGLISH_KEY, WORD_LIST);
                 cracker.load_dictionaries(dictionary_lists);
                 cracker.set_input(input);
+                cracker.start_matching();
                 
-                assert_eq!(true, cracker.try_match());
+                assert_eq!(true, cracker.check(MILLIS));
                 assert_eq!("my_word", cracker.get_match());
             }
         )*
@@ -252,5 +295,29 @@ mod tests {
         match_base64: ("bXlfd29yZA==", HashAlgorithm::Base64),
         match_sha256: ("7C375E543FB8235B84054D89818C8D30B1C55CD06A65236C56EFE6223D43C06E", HashAlgorithm::Sha256),
         match_sha1: ("3E047347D97C14169F3EA769B1F28CAF9D6A8E5D", HashAlgorithm::Sha1),
+    }
+
+    #[wasm_bindgen_test]
+    fn chunky_check() {
+        let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];        
+        let words: String = (0..99999)
+            .map(|num|num.to_string() + "\n")
+            .collect();
+        
+        let mut cracker: HashRipper = HashRipper::new();
+        cracker.set_algorithm(HashAlgorithm::Md5);
+        cracker.add_dictionary(ENGLISH_KEY, words.as_str());
+        cracker.load_dictionaries(dictionary_lists);
+        cracker.set_input("e57023ed682d83a41d25acb650c877da");
+        cracker.start_matching();
+        
+        while cracker.get_progress() < cracker.get_word_list_count() {
+            if cracker.check(500f64) {
+                break;
+            }
+        }
+       
+        assert_eq!("99998", cracker.get_match());
+        assert_ne!(0.0, cracker.get_elapsed_seconds());
     }
 }
