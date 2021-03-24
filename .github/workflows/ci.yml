@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, staging ]
+  pull_request:
+    branches: [ staging ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust build:
+    
+	runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose
+      working-directory: ./src/ripper_wasm
+	  
+	- name: Build npm wasm package
+      run: wasm-pack build
+      working-directory: ./src/ripper_wasm
+
+  rust test:
+    
+	runs-on: ubuntu-latest
+
+    steps:
+	- name: Install
+	  run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+	- name Cargo test
+	  run: cargo test
+	  working-directory: ./src/ripper_wasm
+	- name: Wasm-pack test
+	  run: wasm-pack test --node
+	  working-directory: ./src/ripper_wasm
+
+  node build:
+	
+	runs-on: ubuntu-latest
+	
+	strategy:
+      matrix:
+        node-version: [14.X, 15.x]
+	
+    steps:
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+        script: |
+          cd ./src/ripper_wasm/pkg
+          sudo npm link
+          cd ../../site
+          sudo npm link rust_ripper_wasm
+          npm install
+          npm run build
+

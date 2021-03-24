@@ -2,7 +2,7 @@ name: Docker
 
 on:
   workflow_run:
-    workflows: ["Node.js CI"]
+    workflows: ["CI"]
     branches:
       - staging
     types:
