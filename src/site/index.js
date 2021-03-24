@@ -40,21 +40,26 @@ mem.then(m => {
             });
         };
 
+        const loop = () => {
+            const found = ripper.check(500);
+            const progress = ripper.get_progress();
+            txtElapsedTime.value = ripper.get_elapsed_seconds();
+            txtWordProgress.value = progress;
+            
+            if (found) {
+                txtPwdOutput.value = ripper.get_match();
+                txtResult.value = "FOUND!!";
+            } else if (progress < ripper.get_word_list_count()) {
+                requestAnimationFrame(loop);
+            } else {
+                txtResult.value = "NOT FOUND!!";
+            }
+        };
+
         const execute = () => {
             clean()
                 .then(run())
-                .then(() => {
-                    txtWordProgress.value = ripper.get_progress();
-                    txtElapsedTime.value = ripper.get_elapsed_seconds();
-                    const match = ripper.get_match();
-                    if (match === "") {
-                        txtResult.value = "NOT FOUND!!";
-                    }
-                    else {
-                        txtPwdOutput.value = match;
-                        txtResult.value = "FOUND!!";
-                    }
-                });
+                .then(requestAnimationFrame(loop));
         };
 
         const run = () => {
@@ -63,7 +68,7 @@ mem.then(m => {
                 const algorithm = getSelectedAlgorithm();
                 ripper.set_algorithm(algorithm);
                 ripper.set_input(pwd);
-                ripper.try_match();
+                ripper.start_matching();
                 resolve();
             });
         };

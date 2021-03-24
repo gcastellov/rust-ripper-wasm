@@ -12,8 +12,8 @@ pub mod core {
         pub dictionary: Dictionary,
         pub dictionary_cache: HashMap<String, String>,
         pub word_match: Option<String>,
-        pub elapsed_seconds: Option<f64>,
         pub dictionary_selection: Vec<String>,
+        pub starting_at: Option<f64>,
     }
 
     impl Dictionary {
@@ -36,6 +36,22 @@ pub mod core {
 
         pub fn get_index(&self) -> usize {
             self.index
+        }
+
+        pub fn get_chunk(&mut self, size: usize) -> Option<&[String]> {
+            let chunk = if self.index + size < self.word_list.len() {
+                self.word_list.get(self.index..self.index + size)
+            } else {
+                self.word_list.get(self.index..)
+            };
+
+            if chunk.unwrap().is_empty() { None } else  { chunk }
+        }
+
+        pub fn forward(&mut self, size: usize) {
+            for _ in 0..size {
+                self.next();
+            }
         }
     }
 
@@ -73,7 +89,7 @@ pub mod core {
     impl Inner {
         pub fn reset(&mut self) {
             self.word_match = None;
-            self.elapsed_seconds = None;
+            self.starting_at = None;
             self.dictionary.start();
         }
     
@@ -86,7 +102,11 @@ pub mod core {
         }
     
         pub fn get_elapsed_seconds(&self) -> f64 {
-            self.elapsed_seconds.unwrap_or(0.0)
+            if let Some(starting_at) = self.starting_at {
+                (js_sys::Date::now() - starting_at) / 1_000f64
+            } else {
+                0.0f64
+            }
         }
     
         pub fn load_dictionaries(&mut self, keys: Vec<String>) {
@@ -108,6 +128,10 @@ pub mod core {
         pub fn add_dictionary(&mut self, key: &str, value: &str) {
             self.dictionary_cache.insert(key.to_string(), value.to_string());
         }
+
+        pub fn start_ticking(&mut self) {
+            self.starting_at = Some(js_sys::Date::now());
+        }
     }
     
     impl Default for Inner {
@@ -118,7 +142,7 @@ pub mod core {
                 dictionary_selection: Vec::default(),
                 input: String::default(),
                 word_match: None,
-                elapsed_seconds: None,
+                starting_at: None,
             }
         }
     }
@@ -190,7 +214,7 @@ mod tests {
         inner.reset();
 
         assert_eq!(None, inner.word_match);
-        assert_eq!(None, inner.elapsed_seconds);
+        assert_eq!(None, inner.starting_at);
         assert_eq!(0.0, inner.get_elapsed_seconds());
         assert_eq!(true, inner.get_match().is_empty());
     }
@@ -216,5 +240,28 @@ mod tests {
 
         inner.load_dictionaries(keys_one);
         assert_eq!(1, inner.get_word_list_count());
-    }    
+    }
+
+    #[test]
+    fn get_chunk() {
+        const ENGLISH: &str = "english";
+        const CHUNK_SIZE: usize = 50;
+
+        let mut inner = Inner::default();
+        let words: String = (0..100)
+            .map(|num|num.to_string() + "\n")
+            .collect();
+
+        inner.add_dictionary(ENGLISH, words.as_str());
+        inner.load_dictionaries(vec![ ENGLISH.to_string() ]);
+        let mut rounds: usize = 0;
+        
+        while let Some(_) = inner.dictionary.get_chunk(CHUNK_SIZE) {
+            inner.dictionary.forward(CHUNK_SIZE);
+            rounds += 1;
+        }
+
+        assert_eq!(2, rounds);
+        assert_ne!(0, inner.dictionary.get_index());
+    }
 }
