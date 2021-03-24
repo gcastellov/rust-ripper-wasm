@@ -13,6 +13,9 @@ jobs:
   rust-build:
     runs-on: ubuntu-latest
 
+    strategy:
+      max-parallel: 1
+
     steps:
     - uses: actions/checkout@v2
     - name: Build
@@ -25,6 +28,9 @@ jobs:
 
   rust-test:
     runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 1
 
     steps:
     - name: Install
@@ -42,6 +48,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      max-parallel: 1
       matrix:
         node-version: [14.X, 15.x]
 
