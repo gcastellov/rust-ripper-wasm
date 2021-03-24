@@ -1,5 +1,4 @@
-[![Rust](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/rust.yml/badge.svg?branch=main)](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/rust.yml)
-[![Node.js CI](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/node.js.yml/badge.svg)](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/node.js.yml)
+[![CI](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/ci.yml/badge.svg)](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/ci.yml)
 
 
 # WASM rust the ripper 
