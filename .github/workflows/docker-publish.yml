@@ -1,13 +1,8 @@
 name: Docker
 
 on:
-  push:
-    branches:
-      - staging
-    tags:
-      - v*
   workflow_run:
-    workflows: ["Node.js CI"]
+    workflows: ["CI"]
     branches:
       - staging
     types:
