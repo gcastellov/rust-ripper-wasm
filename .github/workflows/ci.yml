@@ -18,7 +18,7 @@ jobs:
     - name: Build
       run: cargo build --verbose
       working-directory: ./src/ripper_wasm
-	  
+
     - name: Build npm wasm package
       run: wasm-pack build
       working-directory: ./src/ripper_wasm
@@ -33,18 +33,18 @@ jobs:
     - name: Cargo test
       run: cargo test
       working-directory: ./src/ripper_wasm
-    
+
     - name: Wasm-pack test
       run: wasm-pack test --node
       working-directory: ./src/ripper_wasm
 
   node build:
     runs-on: ubuntu-latest
-	
+
     strategy:
       matrix:
         node-version: [14.X, 15.x]
-	
+
     steps:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
