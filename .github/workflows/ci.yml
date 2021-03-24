@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  rust build:
+  rust-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,7 @@ jobs:
       run: wasm-pack build
       working-directory: ./src/ripper_wasm
 
-  rust test:
+  rust-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -38,7 +38,7 @@ jobs:
       run: wasm-pack test --node
       working-directory: ./src/ripper_wasm
 
-  node build:
+  node-build:
     runs-on: ubuntu-latest
 
     strategy:
