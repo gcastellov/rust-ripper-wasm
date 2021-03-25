@@ -138,6 +138,10 @@ impl SymetricRipper {
     pub fn get_elapsed_seconds(&self) -> f64 {
         self.inner.get_elapsed_seconds()
     }
+
+    pub fn get_last_word(&self) -> String {
+        self.inner.get_last_word()
+    }
 }
 
 #[wasm_bindgen]
@@ -234,6 +238,10 @@ impl HashRipper {
 
     pub fn get_elapsed_seconds(&self) -> f64 {
         self.inner.get_elapsed_seconds()
+    }
+
+    pub fn get_last_word(&self) -> String {
+        self.inner.get_last_word()
     }
 }
 

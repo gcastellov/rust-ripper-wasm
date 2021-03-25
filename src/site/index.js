@@ -26,6 +26,7 @@ mem.then(m => {
         const txtWordListCount = document.getElementById("txtWordListCount");
         const txtPwdOutput = document.getElementById("txtPwdOutput");
         const txtElapsedTime = document.getElementById("txtElapsedTime");
+        const txtLastWord = document.getElementById("txtLastWord");
         
         let mutex = new Mutex();
         let ripper = new j.HashRipper();
@@ -36,6 +37,7 @@ mem.then(m => {
                 txtPwdOutput.value = "";
                 txtWordProgress.value = "";
                 txtElapsedTime.value = "";
+                txtLastWord.value = "";
                 resolve();
             });
         };
@@ -43,7 +45,9 @@ mem.then(m => {
         const loop = () => {
             const found = ripper.check(500);
             const progress = ripper.get_progress();
+            const lastWord =  ripper.get_last_word();
             txtElapsedTime.value = ripper.get_elapsed_seconds();
+            txtLastWord.value = lastWord;
             txtWordProgress.value = progress;
             
             if (found) {
