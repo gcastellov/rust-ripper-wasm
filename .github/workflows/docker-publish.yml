@@ -1,12 +1,8 @@
 name: Docker
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    branches:
-      - staging
-    types:
-      - completed
+  push:
+    branches: [ staging ]
 
 env:
   IMAGE_NAME: rustripperwasm
