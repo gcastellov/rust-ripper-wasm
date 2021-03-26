@@ -169,7 +169,7 @@ mod tests {
     #[test]
     fn iterate_when_empty_returns_none() {
         let mut dictionary = Dictionary::default();
-        assert_eq!(dictionary.next().is_none(), true);
+        assert!(dictionary.next().is_none());
     }
 
     #[test]
@@ -177,8 +177,8 @@ mod tests {
         let mut dictionary = Dictionary::default();
         dictionary.load("my_word".to_string());
         let word = dictionary.next();
-        assert_eq!(word.is_some(), true);
-        assert_eq!(dictionary.next().is_some(), false);
+        assert!(word.is_some());
+        assert!(dictionary.next().is_none());
     }
 
     #[test]
@@ -230,7 +230,7 @@ mod tests {
         assert_eq!(None, inner.word_match);
         assert_eq!(None, inner.starting_at);
         assert_eq!(0.0, inner.get_elapsed_seconds());
-        assert_eq!(true, inner.get_match().is_empty());
+        assert!(inner.get_match().is_empty());
     }
 
     #[test]
