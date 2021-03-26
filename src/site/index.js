@@ -92,14 +92,37 @@ mem.then(m => {
                 .map(dictionary => dictionary.value);
         };
 
+        const getEncoding = (dictionary) => {
+            switch (dictionary) {
+                case "russian.txt":
+                    return "Windows-1251";
+                case "spanish.txt":
+                case "french.txt":
+                case "czech.txt":
+                case "finnish.txt":
+                case "swedish.txt":
+                case "german.txt":
+                    return "Windows-1252";
+                default:
+                    return "utf-8";
+            }
+        };
+
         const updateDictionarySelection = async () => {
             const release = await mutex.acquire();
             const dictionaries = getSelectedDictionaries();
+            var headers = new Headers();
+            headers.append('Content-Type','text/plain; charset=UTF-16');
             const promises = dictionaries
                 .filter(dictionary => !ripper.has_dictionary(dictionary))
                 .map(dictionary => {
-                    return fetch(`./assets/${dictionary}`)
-                        .then(r => r.text())
+                    return fetch(`./assets/${dictionary}`, headers)
+                        .then(r => r.arrayBuffer())
+                        .then(buffer => {
+                            const encoding = getEncoding(dictionary);
+                            const decoder = new TextDecoder(encoding);
+                            return decoder.decode(buffer);
+                        })
                         .then(text => ripper.add_dictionary(dictionary, text));
                 });
 
