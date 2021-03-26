@@ -41,7 +41,7 @@ mod tests {
                 cracker.set_input(input);
                 cracker.start_matching();
                 
-                assert_eq!(true, cracker.check(MILLIS));
+                assert!(cracker.check(MILLIS));
                 assert_eq!("my_word", cracker.get_match());
             }
         )*
