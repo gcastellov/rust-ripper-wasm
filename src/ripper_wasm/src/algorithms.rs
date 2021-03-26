@@ -125,9 +125,9 @@ mod tests {
         $(
             #[test]
             fn $name() {
-                let (input, expected) = $value;
+                let input = $value;
                 let encoder: Option<Box<dyn HashEncoder>> = input.get_encoder();
-                assert_eq!(encoder.is_some(), expected);
+                assert!(encoder.is_some());
             }
         )*
         }
@@ -138,25 +138,25 @@ mod tests {
         $(
             #[test]
             fn $name() {
-                let (input, expected) = $value;
+                let input = $value;
                 let encoder: Option<Box<dyn SymetricEncoder>> = input.get_encoder();
-                assert_eq!(encoder.is_some(), expected);
+                assert!(encoder.is_some());
             }
         )*
         }
     }
 
     hash_encoder_tests! {
-        hash_md4: (HashAlgorithm::Md4, true),
-        hash_md5: (HashAlgorithm::Md5, true),
-        hash_sha1: (HashAlgorithm::Sha1, true),
-        hash_sha256: (HashAlgorithm::Sha256, true),
-        hash_base64: (HashAlgorithm::Base64, true),
+        hash_md4: HashAlgorithm::Md4,
+        hash_md5: HashAlgorithm::Md5,
+        hash_sha1: HashAlgorithm::Sha1,
+        hash_sha256: HashAlgorithm::Sha256,
+        hash_base64: HashAlgorithm::Base64,
     }
 
     symetric_encoder_tests! {
-        symetric_des: (SymetricAlgorithm::Des, true),
-        symetric_des3: (SymetricAlgorithm::Des3, true),
+        symetric_des: SymetricAlgorithm::Des,
+        symetric_des3: SymetricAlgorithm::Des3,
     }
 
 }
