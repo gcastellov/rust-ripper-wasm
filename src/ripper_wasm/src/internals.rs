@@ -53,6 +53,14 @@ pub mod core {
                 self.next();
             }
         }
+
+        pub fn get_last(&self) -> Option<&String> {
+            if self.index == 0 {
+                None
+            } else {
+                self.word_list.get(self.index-1)
+            }
+        }
     }
 
     impl Default for Dictionary {   
@@ -132,6 +140,10 @@ pub mod core {
         pub fn start_ticking(&mut self) {
             self.starting_at = Some(js_sys::Date::now());
         }
+
+        pub fn get_last_word(&self) -> String {
+            (self.dictionary.get_last().unwrap_or(&String::default())).to_owned()
+        }
     }
     
     impl Default for Inner {
@@ -151,6 +163,8 @@ pub mod core {
 #[cfg(test)]
 mod tests {
     use crate::internals::core::*;
+
+    const ENGLISH: &str = "english";
 
     #[test]
     fn iterate_when_empty_returns_none() {
@@ -221,7 +235,6 @@ mod tests {
 
     #[test]
     fn loading_entries() {
-        const ENGLISH: &str = "english";
         const SPANISH: &str = "spanish";
 
         let keys_one: Vec<String> = vec![ String::from(ENGLISH) ];
@@ -244,7 +257,6 @@ mod tests {
 
     #[test]
     fn get_chunk() {
-        const ENGLISH: &str = "english";
         const CHUNK_SIZE: usize = 50;
 
         let mut inner = Inner::default();
@@ -263,5 +275,43 @@ mod tests {
 
         assert_eq!(2, rounds);
         assert_ne!(0, inner.dictionary.get_index());
+    }
+
+    #[test]
+    fn get_last() {
+        let mut dictionary = Dictionary::default();
+        dictionary.load(String::from("one\ntwo\n"));
+
+        assert!(dictionary.get_last().is_none());
+
+        dictionary.next();
+        assert_eq!(dictionary.get_last().unwrap(), "one");
+
+        dictionary.next();
+        assert_eq!(dictionary.get_last().unwrap(), "two");
+    }
+
+    #[test]
+    fn get_last_word_when_empty() {
+        let inner = Inner::default();
+        let actual = inner.get_last_word();
+
+        assert_eq!(actual, String::default());
+    }
+
+    #[test]
+    fn get_last_word_when_not_empty() {
+        let mut inner = Inner::default();
+        let words: String = (0..10)
+            .map(|num|num.to_string() + "\n")
+            .collect();
+
+        inner.add_dictionary(ENGLISH, words.as_str());
+        inner.load_dictionaries(vec![ ENGLISH.to_string() ]);
+        
+        assert_eq!(inner.get_last_word(), String::default());
+
+        inner.dictionary.next();
+        assert_eq!(inner.get_last_word(), "0");
     }
 }

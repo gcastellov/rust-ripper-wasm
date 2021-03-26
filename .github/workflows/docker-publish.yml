@@ -1,12 +1,8 @@
 name: Docker
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    branches:
-      - staging
-    types:
-      - completed
+  push:
+    branches: [ staging ]
 
 env:
   IMAGE_NAME: rustripperwasm
@@ -20,6 +16,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: staging
 
       - name: Build image
         run: docker build -f ./docker/Dockerfile -t $IMAGE_NAME .
