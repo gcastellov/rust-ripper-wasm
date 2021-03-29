@@ -7,6 +7,7 @@ extern crate md5;
 extern crate sha256;
 extern crate md4;
 extern crate sha1;
+extern crate ripemd320;
 
 mod algorithms;
 mod internals;

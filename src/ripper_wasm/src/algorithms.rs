@@ -1,6 +1,7 @@
 pub mod implementations {
 
     use wasm_bindgen::prelude::*;
+    use ripemd320::Ripemd320;
     use md4::{Md4,Digest};
 
     #[wasm_bindgen]
@@ -11,6 +12,7 @@ pub mod implementations {
         Sha256 = 3,
         Md4 = 4,
         Sha1 = 5,
+        Ripemd320 = 6,
     }
 
     #[wasm_bindgen]
@@ -43,6 +45,7 @@ pub mod implementations {
     struct Sha1Wrapper {}
     struct DesWrapper {}
     struct Des3Wrapper {}
+    struct Ripemd320Wrapper {}
 
     impl HashEncoderFactory for HashAlgorithm {
         fn get_encoder(&self) -> Option<Box<dyn HashEncoder>> { 
@@ -51,7 +54,8 @@ pub mod implementations {
                 HashAlgorithm::Sha256 => Some(Box::new(Sha256Wrapper { })),
                 HashAlgorithm::Base64 => Some(Box::new(Base64Wrapper { })),
                 HashAlgorithm::Md4 => Some(Box::new(Md4Wrapper { })),
-                HashAlgorithm::Sha1 => Some(Box::new(Sha1Wrapper { }))
+                HashAlgorithm::Sha1 => Some(Box::new(Sha1Wrapper { })),
+                HashAlgorithm::Ripemd320 => Some(Box::new(Ripemd320Wrapper { })),
             }
         }
     }
@@ -60,7 +64,7 @@ pub mod implementations {
         fn get_encoder(&self) -> Option<Box<dyn SymetricEncoder>> { 
             match self {
                 SymetricAlgorithm::Des => Some(Box::new(DesWrapper { })),
-                SymetricAlgorithm::Des3 => Some(Box::new(Des3Wrapper { }))
+                SymetricAlgorithm::Des3 => Some(Box::new(Des3Wrapper { })),
             }
         }
     }
@@ -96,9 +100,15 @@ pub mod implementations {
     impl HashEncoder for Sha1Wrapper {
         fn encode(&self, input: &String) -> String { 
             let mut hasher = sha1::Sha1::new();
-            let bytes: &[u8] = input.as_bytes();
-            hasher.update(bytes);
+            hasher.update(input.as_bytes());
             hasher.digest().to_string()
+        }
+    }
+
+    impl HashEncoder for Ripemd320Wrapper {
+        fn encode(&self, input: &String) -> String { 
+            let result = Ripemd320::digest(input.as_bytes());
+            format!("{:x}", result)
         }
     }
 
@@ -119,6 +129,21 @@ pub mod implementations {
 mod tests {
     
     use crate::algorithms::implementations::{HashEncoderFactory, SymetricEncoderFactory, SymetricAlgorithm, HashAlgorithm, HashEncoder, SymetricEncoder};
+
+    macro_rules! hash_algorithm_tests {
+        ($($name:ident: $value:expr,)*) => {
+        $(
+            #[test]
+            fn $name() {
+                let input: String = String::from("Hello world!");
+                let (algorithm, expected) = $value;
+                let encoder: Box<dyn HashEncoder> = algorithm.get_encoder().unwrap();
+                let actual = encoder.encode(&input);
+                assert_eq!(actual, expected);
+            }
+        )*
+        }
+    }
 
     macro_rules! hash_encoder_tests {
         ($($name:ident: $value:expr,)*) => {
@@ -152,6 +177,7 @@ mod tests {
         hash_sha1: HashAlgorithm::Sha1,
         hash_sha256: HashAlgorithm::Sha256,
         hash_base64: HashAlgorithm::Base64,
+        hash_ripemd320: HashAlgorithm::Ripemd320,
     }
 
     symetric_encoder_tests! {
@@ -159,4 +185,12 @@ mod tests {
         symetric_des3: SymetricAlgorithm::Des3,
     }
 
+    hash_algorithm_tests! {
+        md4: (HashAlgorithm::Md4, "0d7a9db5a3bed4ae5738ee6d1909649c"),
+        md5: (HashAlgorithm::Md5, "86fb269d190d2c85f6e0468ceca42a20"),
+        sha1: (HashAlgorithm::Sha1, "d3486ae9136e7856bc42212385ea797094475802"),
+        sha256: (HashAlgorithm::Sha256, "c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a"),
+        base64: (HashAlgorithm::Base64, "SGVsbG8gd29ybGQh"),
+        ripemd320: (HashAlgorithm::Ripemd320, "f1c1c231d301abcf2d7daae0269ff3e7bc68e623ad723aa068d316b056d26b7d1bb6f0cc0f28336d"),
+    }
 }
