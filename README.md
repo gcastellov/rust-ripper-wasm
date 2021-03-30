@@ -17,6 +17,7 @@ Please, refer to each crate documentation and check its licensing.
 | `base64`    | Base64   | [![crates.io](https://img.shields.io/crates/v/base64.svg)](https://crates.io/crates/base64)|
 |`ripemd128`  | RIPEMD128 | [![crates.io](https://img.shields.io/crates/v/ripemd128.svg)](https://crates.io/crates/ripemd128)|
 |`ripemd320`  | RIPEMD320 | [![crates.io](https://img.shields.io/crates/v/ripemd320.svg)](https://crates.io/crates/ripemd320)|
+|`whirlpool`  | WHIRLPOOL | [![crates.io](https://img.shields.io/crates/v/whirlpool.svg)](https://crates.io/crates/whirlpool)|
 
 <br/>
 
