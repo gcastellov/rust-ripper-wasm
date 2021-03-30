@@ -12,13 +12,14 @@ pub mod implementations {
         Sha1 = 5,
         Ripemd128 = 6,
         Ripemd320 = 7,
+        Whirlpool = 8,
     }
 
     #[wasm_bindgen]
     #[derive(Clone)]
     pub enum SymetricAlgorithm {
-        Des = 6,
-        Des3 = 7,
+        Des = 9,
+        Des3 = 10,
     }
 
     pub trait HashEncoderFactory {
@@ -46,6 +47,7 @@ pub mod implementations {
     struct Des3Wrapper {}
     struct Ripemd128Wrapper {}
     struct Ripemd320Wrapper {}
+    struct WhirlpoolWrapper {}
 
     impl HashEncoderFactory for HashAlgorithm {
         fn get_encoder(&self) -> Option<Box<dyn HashEncoder>> { 
@@ -57,6 +59,8 @@ pub mod implementations {
                 HashAlgorithm::Sha1 => Some(Box::new(Sha1Wrapper { })),
                 HashAlgorithm::Ripemd128 => Some(Box::new(Ripemd128Wrapper { })),
                 HashAlgorithm::Ripemd320 => Some(Box::new(Ripemd320Wrapper { })),
+                HashAlgorithm::Whirlpool => Some(Box::new(WhirlpoolWrapper { })),
+
             }
         }
     }
@@ -160,6 +164,21 @@ pub mod implementations {
         }
     }
 
+    mod whirlpool {
+        use whirlpool::{Whirlpool, Digest};
+        use crate::HashEncoder;
+        use crate::algorithms::implementations::WhirlpoolWrapper;
+
+        impl HashEncoder for WhirlpoolWrapper {
+            fn encode(&self, input: &String) -> String {
+                let mut hasher = Whirlpool::new();
+                hasher.update(input);
+                let result = hasher.finalize();
+                format!("{:x}", result)
+            }
+        }
+    }
+
     impl SymetricEncoder for DesWrapper {        
         fn encode(&self, _key: &String, _input: &String) -> String { 
             todo!() 
@@ -227,6 +246,7 @@ mod tests {
         hash_base64: HashAlgorithm::Base64,
         hash_ripemd128: HashAlgorithm::Ripemd128,
         hash_ripemd320: HashAlgorithm::Ripemd320,
+        hash_whirlpool: HashAlgorithm::Whirlpool,
     }
 
     symetric_encoder_tests! {
@@ -242,5 +262,6 @@ mod tests {
         base64: (HashAlgorithm::Base64, "SGVsbG8gd29ybGQh"),
         ripemd128: (HashAlgorithm::Ripemd128, "d917d92bc5591a0915f70acebbc2b126"),
         ripemd320: (HashAlgorithm::Ripemd320, "f1c1c231d301abcf2d7daae0269ff3e7bc68e623ad723aa068d316b056d26b7d1bb6f0cc0f28336d"),
+        whirlpool: (HashAlgorithm::Whirlpool, "bb4f1451ec1b8326643d25d74547591619cb01dd1f104d729a13494cbd95382d3526b00a2d3fdf448e1e4b39887c54fe2aea9767872b58ed361eb3a12075c5b5"),
     }
 }
