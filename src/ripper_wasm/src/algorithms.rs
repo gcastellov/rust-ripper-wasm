@@ -1,8 +1,6 @@
 pub mod implementations {
 
     use wasm_bindgen::prelude::*;
-    use ripemd320::Ripemd320;
-    use md4::{Md4,Digest};
 
     #[wasm_bindgen]
     #[derive(Clone)]
@@ -12,7 +10,8 @@ pub mod implementations {
         Sha256 = 3,
         Md4 = 4,
         Sha1 = 5,
-        Ripemd320 = 6,
+        Ripemd128 = 6,
+        Ripemd320 = 7,
     }
 
     #[wasm_bindgen]
@@ -45,6 +44,7 @@ pub mod implementations {
     struct Sha1Wrapper {}
     struct DesWrapper {}
     struct Des3Wrapper {}
+    struct Ripemd128Wrapper {}
     struct Ripemd320Wrapper {}
 
     impl HashEncoderFactory for HashAlgorithm {
@@ -55,6 +55,7 @@ pub mod implementations {
                 HashAlgorithm::Base64 => Some(Box::new(Base64Wrapper { })),
                 HashAlgorithm::Md4 => Some(Box::new(Md4Wrapper { })),
                 HashAlgorithm::Sha1 => Some(Box::new(Sha1Wrapper { })),
+                HashAlgorithm::Ripemd128 => Some(Box::new(Ripemd128Wrapper { })),
                 HashAlgorithm::Ripemd320 => Some(Box::new(Ripemd320Wrapper { })),
             }
         }
@@ -68,47 +69,94 @@ pub mod implementations {
             }
         }
     }
-    
-    impl HashEncoder for Md5Wrapper {    
-        fn encode(&self, input: &String) -> String { 
-            let digest = md5::compute(input);
-            format!("{:x}", digest)
-        }
-    }
-    
-    impl HashEncoder for Base64Wrapper {
-        fn encode(&self, input: &String) -> String { 
-            base64::encode(input)
-        }
-    }
-    
-    impl HashEncoder for Sha256Wrapper {
-        fn encode(&self, input: &String) -> String { 
-            sha256::digest(input)
-        }
-    }
-    
-    impl HashEncoder for Md4Wrapper {
-        fn encode(&self, input: &String) -> String { 
-            let mut hasher = Md4::new();
-            hasher.update(input);
-            let result = hasher.finalize();
-            format!("{:x}", result)
-        }
-    }
-    
-    impl HashEncoder for Sha1Wrapper {
-        fn encode(&self, input: &String) -> String { 
-            let mut hasher = sha1::Sha1::new();
-            hasher.update(input.as_bytes());
-            hasher.digest().to_string()
+
+    mod md5 {
+        use crate::HashEncoder;
+        use crate::algorithms::implementations::Md5Wrapper;
+
+        impl HashEncoder for Md5Wrapper {    
+            fn encode(&self, input: &String) -> String { 
+                let digest = md5::compute(input);
+                format!("{:x}", digest)
+            }
         }
     }
 
-    impl HashEncoder for Ripemd320Wrapper {
-        fn encode(&self, input: &String) -> String { 
-            let result = Ripemd320::digest(input.as_bytes());
-            format!("{:x}", result)
+    mod base64 {
+        use crate::algorithms::implementations::Base64Wrapper;
+        use crate::HashEncoder;
+
+        impl HashEncoder for Base64Wrapper {
+            fn encode(&self, input: &String) -> String { 
+                base64::encode(input)
+            }
+        }
+    }
+
+    mod sha256 {
+        use crate::algorithms::implementations::Sha256Wrapper;
+        use crate::HashEncoder;
+
+        impl HashEncoder for Sha256Wrapper {
+            fn encode(&self, input: &String) -> String { 
+                sha256::digest(input)
+            }
+        }
+    }
+
+    mod md4 {
+        use md4::{Md4, Digest};
+        use crate::algorithms::implementations::Md4Wrapper;
+        use crate::HashEncoder;
+
+        impl HashEncoder for Md4Wrapper {
+            fn encode(&self, input: &String) -> String { 
+                let mut hasher = Md4::new();
+                hasher.update(input);
+                let result = hasher.finalize();
+                format!("{:x}", result)
+            }
+        }
+    }
+
+    mod sha1 {
+        use crate::algorithms::implementations::Sha1Wrapper;
+        use crate::HashEncoder;
+
+        impl HashEncoder for Sha1Wrapper {
+            fn encode(&self, input: &String) -> String { 
+                let mut hasher = sha1::Sha1::new();
+                hasher.update(input.as_bytes());
+                hasher.digest().to_string()
+            }
+        }
+    }
+
+    mod ripemd320 {
+        use ripemd320::{Ripemd320, Digest};
+        use crate::algorithms::implementations::Ripemd320Wrapper;
+        use crate::HashEncoder;
+
+        impl HashEncoder for Ripemd320Wrapper {
+            fn encode(&self, input: &String) -> String { 
+                let result = Ripemd320::digest(input.as_bytes());
+                format!("{:x}", result)
+            }
+        }
+    }
+
+    mod ripemd128 {
+        use ripemd128::{Ripemd128, Digest};
+        use crate::algorithms::implementations::Ripemd128Wrapper;
+        use crate::HashEncoder;
+
+        impl HashEncoder for Ripemd128Wrapper {
+            fn encode(&self, input: &String) -> String {
+                let mut hasher = Ripemd128::default();
+                hasher.input(input.as_bytes());
+                let result = hasher.result();
+                format!("{:x}", result)
+            }
         }
     }
 
@@ -177,6 +225,7 @@ mod tests {
         hash_sha1: HashAlgorithm::Sha1,
         hash_sha256: HashAlgorithm::Sha256,
         hash_base64: HashAlgorithm::Base64,
+        hash_ripemd128: HashAlgorithm::Ripemd128,
         hash_ripemd320: HashAlgorithm::Ripemd320,
     }
 
@@ -191,6 +240,7 @@ mod tests {
         sha1: (HashAlgorithm::Sha1, "d3486ae9136e7856bc42212385ea797094475802"),
         sha256: (HashAlgorithm::Sha256, "c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a"),
         base64: (HashAlgorithm::Base64, "SGVsbG8gd29ybGQh"),
+        ripemd128: (HashAlgorithm::Ripemd128, "d917d92bc5591a0915f70acebbc2b126"),
         ripemd320: (HashAlgorithm::Ripemd320, "f1c1c231d301abcf2d7daae0269ff3e7bc68e623ad723aa068d316b056d26b7d1bb6f0cc0f28336d"),
     }
 }

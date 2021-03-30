@@ -8,6 +8,7 @@ extern crate sha256;
 extern crate md4;
 extern crate sha1;
 extern crate ripemd320;
+extern crate ripemd128;
 
 mod algorithms;
 mod internals;
@@ -55,6 +56,8 @@ mod tests {
         match_base64: ("bXlfd29yZA==", HashAlgorithm::Base64),
         match_sha256: ("7C375E543FB8235B84054D89818C8D30B1C55CD06A65236C56EFE6223D43C06E", HashAlgorithm::Sha256),
         match_sha1: ("3E047347D97C14169F3EA769B1F28CAF9D6A8E5D", HashAlgorithm::Sha1),
+        match_ripemd128: ("1a147e58b2a2c6e3dedc94ac0eeee67b", HashAlgorithm::Ripemd128),
+        match_ripemd320: ("667d71946caaadeadd667e040a3f9fdcae361e03b2dd7d7ddfebc9f0d37e58528b37f5274bc03170", HashAlgorithm::Ripemd320),
     }
 
     #[wasm_bindgen_test]
