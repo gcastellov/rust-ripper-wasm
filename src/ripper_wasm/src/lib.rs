@@ -10,6 +10,7 @@ extern crate sha1;
 extern crate ripemd320;
 extern crate ripemd128;
 extern crate whirlpool;
+extern crate md2;
 
 mod algorithms;
 mod internals;
@@ -52,6 +53,7 @@ mod tests {
     }
 
     try_match_tests! {
+        match_md2: ("eb2429b9c479245b49c5d997e6cbc530", HashAlgorithm::Md2),
         match_md4: ("3B9AFF425FA5F33A77B0DC569AB4FE60", HashAlgorithm::Md4),
         match_md5: ("E4EAC943E400CD75335CE2A751E794F4", HashAlgorithm::Md5),
         match_base64: ("bXlfd29yZA==", HashAlgorithm::Base64),
