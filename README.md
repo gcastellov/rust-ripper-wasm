@@ -10,6 +10,7 @@ Please, refer to each crate documentation and check its licensing.
 
 | Name        | Algorithm  | Crates.io |
 |-------------|------------|-----------|
+| `md2`       | MD2      | [![crates.io](https://img.shields.io/crates/v/md2.svg)](https://crates.io/crates/md2)      |
 | `md4`       | MD4      | [![crates.io](https://img.shields.io/crates/v/md4.svg)](https://crates.io/crates/md4)      |
 | `md5`       | MD5     | [![crates.io](https://img.shields.io/crates/v/md5.svg)](https://crates.io/crates/md5)     |
 | `sha1`      | SHA-1   | [![crates.io](https://img.shields.io/crates/v/sha1.svg)](https://crates.io/crates/sha-1)   |
