@@ -13,13 +13,14 @@ pub mod implementations {
         Ripemd128 = 6,
         Ripemd320 = 7,
         Whirlpool = 8,
+        Md2 = 9,
     }
 
     #[wasm_bindgen]
     #[derive(Clone)]
     pub enum SymetricAlgorithm {
-        Des = 9,
-        Des3 = 10,
+        Des = 20,
+        Des3 = 21,
     }
 
     pub trait HashEncoderFactory {
@@ -48,6 +49,7 @@ pub mod implementations {
     struct Ripemd128Wrapper {}
     struct Ripemd320Wrapper {}
     struct WhirlpoolWrapper {}
+    struct Md2Wrapper {}
 
     impl HashEncoderFactory for HashAlgorithm {
         fn get_encoder(&self) -> Option<Box<dyn HashEncoder>> { 
@@ -60,7 +62,7 @@ pub mod implementations {
                 HashAlgorithm::Ripemd128 => Some(Box::new(Ripemd128Wrapper { })),
                 HashAlgorithm::Ripemd320 => Some(Box::new(Ripemd320Wrapper { })),
                 HashAlgorithm::Whirlpool => Some(Box::new(WhirlpoolWrapper { })),
-
+                HashAlgorithm::Md2 => Some(Box::new(Md2Wrapper {})),
             }
         }
     }
@@ -179,6 +181,21 @@ pub mod implementations {
         }
     }
 
+    mod md2 {
+        use md2::{Md2, Digest};
+        use crate::HashEncoder;
+        use crate::algorithms::implementations::Md2Wrapper;
+
+        impl HashEncoder for Md2Wrapper {
+            fn encode(&self, input: &String) -> String {
+                let mut hasher = Md2::new();
+                hasher.update(input);
+                let result = hasher.finalize();
+                format!("{:x}", result)
+            }
+        }
+    }
+
     impl SymetricEncoder for DesWrapper {        
         fn encode(&self, _key: &String, _input: &String) -> String { 
             todo!() 
@@ -239,6 +256,7 @@ mod tests {
     }
 
     hash_encoder_tests! {
+        hash_md2: HashAlgorithm::Md2,
         hash_md4: HashAlgorithm::Md4,
         hash_md5: HashAlgorithm::Md5,
         hash_sha1: HashAlgorithm::Sha1,
@@ -255,6 +273,7 @@ mod tests {
     }
 
     hash_algorithm_tests! {
+        md2: (HashAlgorithm::Md2, "63503d3117ad33f941d20f57144ece64"),
         md4: (HashAlgorithm::Md4, "0d7a9db5a3bed4ae5738ee6d1909649c"),
         md5: (HashAlgorithm::Md5, "86fb269d190d2c85f6e0468ceca42a20"),
         sha1: (HashAlgorithm::Sha1, "d3486ae9136e7856bc42212385ea797094475802"),
