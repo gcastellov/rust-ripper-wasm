@@ -8,6 +8,7 @@ extern crate sha256;
 extern crate md4;
 extern crate sha1;
 extern crate ripemd320;
+extern crate ripemd160;
 extern crate ripemd128;
 extern crate whirlpool;
 extern crate md2;
@@ -60,6 +61,7 @@ mod tests {
         match_sha256: ("7C375E543FB8235B84054D89818C8D30B1C55CD06A65236C56EFE6223D43C06E", HashAlgorithm::Sha256),
         match_sha1: ("3E047347D97C14169F3EA769B1F28CAF9D6A8E5D", HashAlgorithm::Sha1),
         match_ripemd128: ("1a147e58b2a2c6e3dedc94ac0eeee67b", HashAlgorithm::Ripemd128),
+        match_ripemd160: ("25fc9204b31e219e770f9b973b2f206b4049b732", HashAlgorithm::Ripemd160),
         match_ripemd320: ("667d71946caaadeadd667e040a3f9fdcae361e03b2dd7d7ddfebc9f0d37e58528b37f5274bc03170", HashAlgorithm::Ripemd320),
         match_whirlpool: ("8d0e01d8519e6729aeadc4a30735b972d87907b20233a7241644de2eb3120821fd8e26861e5f9f0d31ad9e5631a6b12c63ead9269ca1a15175366ea75595fd24", HashAlgorithm::Whirlpool),
     }
