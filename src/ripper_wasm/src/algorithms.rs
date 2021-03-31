@@ -14,6 +14,7 @@ pub mod implementations {
         Ripemd320 = 7,
         Whirlpool = 8,
         Md2 = 9,
+        Ripemd160 = 10,
     }
 
     #[wasm_bindgen]
@@ -47,6 +48,7 @@ pub mod implementations {
     struct DesWrapper {}
     struct Des3Wrapper {}
     struct Ripemd128Wrapper {}
+    struct Ripemd160Wrapper {}
     struct Ripemd320Wrapper {}
     struct WhirlpoolWrapper {}
     struct Md2Wrapper {}
@@ -60,6 +62,7 @@ pub mod implementations {
                 HashAlgorithm::Md4 => Some(Box::new(Md4Wrapper { })),
                 HashAlgorithm::Sha1 => Some(Box::new(Sha1Wrapper { })),
                 HashAlgorithm::Ripemd128 => Some(Box::new(Ripemd128Wrapper { })),
+                HashAlgorithm::Ripemd160 => Some(Box::new(Ripemd160Wrapper { })),
                 HashAlgorithm::Ripemd320 => Some(Box::new(Ripemd320Wrapper { })),
                 HashAlgorithm::Whirlpool => Some(Box::new(WhirlpoolWrapper { })),
                 HashAlgorithm::Md2 => Some(Box::new(Md2Wrapper {})),
@@ -146,6 +149,22 @@ pub mod implementations {
         impl HashEncoder for Ripemd320Wrapper {
             fn encode(&self, input: &String) -> String { 
                 let result = Ripemd320::digest(input.as_bytes());
+                format!("{:x}", result)
+            }
+        }
+    }
+
+    mod ripemd160 {
+        use ripemd160::{Ripemd160, Digest};
+        use crate::algorithms::implementations::Ripemd160Wrapper;
+        use crate::HashEncoder;
+
+
+        impl HashEncoder for Ripemd160Wrapper {
+            fn encode(&self, input: &String) -> String {
+                let mut hasher = Ripemd160::default();
+                hasher.update(input);
+                let result = hasher.finalize();
                 format!("{:x}", result)
             }
         }
@@ -263,6 +282,7 @@ mod tests {
         hash_sha256: HashAlgorithm::Sha256,
         hash_base64: HashAlgorithm::Base64,
         hash_ripemd128: HashAlgorithm::Ripemd128,
+        hash_ripemd160: HashAlgorithm::Ripemd160,
         hash_ripemd320: HashAlgorithm::Ripemd320,
         hash_whirlpool: HashAlgorithm::Whirlpool,
     }
@@ -280,6 +300,7 @@ mod tests {
         sha256: (HashAlgorithm::Sha256, "c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a"),
         base64: (HashAlgorithm::Base64, "SGVsbG8gd29ybGQh"),
         ripemd128: (HashAlgorithm::Ripemd128, "d917d92bc5591a0915f70acebbc2b126"),
+        ripemd160: (HashAlgorithm::Ripemd160, "7f772647d88750add82d8e1a7a3e5c0902a346a3"),
         ripemd320: (HashAlgorithm::Ripemd320, "f1c1c231d301abcf2d7daae0269ff3e7bc68e623ad723aa068d316b056d26b7d1bb6f0cc0f28336d"),
         whirlpool: (HashAlgorithm::Whirlpool, "bb4f1451ec1b8326643d25d74547591619cb01dd1f104d729a13494cbd95382d3526b00a2d3fdf448e1e4b39887c54fe2aea9767872b58ed361eb3a12075c5b5"),
     }
