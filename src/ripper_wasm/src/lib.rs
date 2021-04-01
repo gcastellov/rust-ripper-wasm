@@ -23,6 +23,7 @@ mod tests {
     #![cfg(target_arch = "wasm32")]
     extern crate wasm_bindgen_test;
     use crate::rippers::hashing::HashRipper;
+    use crate::rippers::lucky::LuckyRipper;
     use wasm_bindgen::prelude::*;
     use wasm_bindgen_test::*;
     use super::*;
@@ -80,13 +81,36 @@ mod tests {
         cracker.set_input("e57023ed682d83a41d25acb650c877da");
         cracker.start_matching();
         
-        while cracker.get_progress() < cracker.get_word_list_count() {
-            if cracker.check(500f64) {
-                break;
-            }
+        while cracker.is_checking() {
+            cracker.check(500f64);
         }
        
         assert_eq!("99998", cracker.get_match());
         assert_ne!(0.0, cracker.get_elapsed_seconds());
+        assert_ne!(0, cracker.get_progress());
+        assert!(!cracker.get_last_word().is_empty());
+    }
+
+    #[wasm_bindgen_test]
+    fn get_lucky_check() {
+        let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
+        let words: String = (0..60)
+            .map(|num|num.to_string() + "\n")
+            .collect();
+
+        let mut cracker: LuckyRipper = LuckyRipper::new();
+        cracker.add_dictionary(ENGLISH_KEY, words.as_str());
+        cracker.load_dictionaries(dictionary_lists);
+        cracker.set_input("daa136908bd66810f306b788c644f470");
+        cracker.start_matching();
+    
+        while cracker.is_checking() {
+            cracker.check(500f64);
+        }
+       
+        assert_eq!("20", cracker.get_match());
+        assert_ne!(0.0, cracker.get_elapsed_seconds());
+        assert_ne!(0, cracker.get_progress());
+        assert!(!cracker.get_last_word().is_empty());
     }
 }

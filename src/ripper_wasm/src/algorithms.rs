@@ -1,6 +1,7 @@
 pub mod implementations {
 
     use wasm_bindgen::prelude::*;
+    use std::slice::Iter;
 
     #[wasm_bindgen]
     #[derive(Clone)]
@@ -38,7 +39,7 @@ pub mod implementations {
 
     pub trait SymetricEncoder {
         fn encode(&self, key: &String, input: &String) -> String;
-    }
+    }   
 
     struct Md5Wrapper {}
     struct Base64Wrapper {}
@@ -52,6 +53,25 @@ pub mod implementations {
     struct Ripemd320Wrapper {}
     struct WhirlpoolWrapper {}
     struct Md2Wrapper {}
+
+    impl HashAlgorithm {
+        pub fn iterator() -> Iter<'static, HashAlgorithm> {
+            static ALGORITHMS: [HashAlgorithm; 10] = [
+                HashAlgorithm::Md5,
+                HashAlgorithm::Base64,
+                HashAlgorithm::Sha256,
+                HashAlgorithm::Md4,
+                HashAlgorithm::Sha1,
+                HashAlgorithm::Ripemd128,
+                HashAlgorithm::Ripemd320,
+                HashAlgorithm::Whirlpool,
+                HashAlgorithm::Md2,
+                HashAlgorithm::Ripemd160,
+            ];
+
+            ALGORITHMS.iter()
+        }
+    }
 
     impl HashEncoderFactory for HashAlgorithm {
         fn get_encoder(&self) -> Option<Box<dyn HashEncoder>> { 
