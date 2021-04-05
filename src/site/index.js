@@ -16,6 +16,8 @@ const debounce = (callback, delay) => {
     }
 };
 
+let isUsingGetLucky = false;
+
 mem.then(m => {
     const memory = m.memory;
 
@@ -31,13 +33,36 @@ mem.then(m => {
         let mutex = new Mutex();
         let ripper = new j.HashRipper();
 
-        const clean = () => {
+        const swapDictionaries = (from, to) => {
+            from.get_dictionary_cache_keys().forEach(key => {
+                let value = from.get_dictionary_value(key);
+                to.add_dictionary(key, value);
+            });
+
+            let selection = from.get_dictionary_selection();
+            to.load_dictionaries(selection);
+        };
+
+        const clean = (from) => {
             return new Promise((resolve, reject) => {
                 txtResult.value = "";
                 txtPwdOutput.value = "";
                 txtWordProgress.value = "";
                 txtElapsedTime.value = "";
                 txtLastWord.value = "";
+
+                if (from != null && from.srcElement.defaultValue == "100") {
+                    let lucky = new j.LuckyRipper();
+                    swapDictionaries(ripper, lucky);
+                    ripper = lucky;                    
+                    isUsingGetLucky = true;
+                } else if (from != null && isUsingGetLucky) {
+                    let hasher = new j.HashRipper();
+                    swapDictionaries(ripper, hasher);
+                    ripper = hasher;
+                    isUsingGetLucky = false;
+                }
+
                 resolve();
             });
         };
@@ -53,7 +78,7 @@ mem.then(m => {
             if (found) {
                 txtPwdOutput.value = ripper.get_match();
                 txtResult.value = "FOUND!!";
-            } else if (progress < ripper.get_word_list_count()) {
+            } else if (ripper.is_checking()) {
                 requestAnimationFrame(loop);
             } else {
                 txtResult.value = "NOT FOUND!!";
@@ -70,7 +95,9 @@ mem.then(m => {
             return new Promise((resolve, reject) => {
                 const pwd = document.getElementById("txtPwdInput").value;
                 const algorithm = getSelectedAlgorithm();
-                ripper.set_algorithm(algorithm);
+                if (algorithm != "100") {
+                    ripper.set_algorithm(algorithm);
+                }
                 ripper.set_input(pwd);
                 ripper.start_matching();
                 resolve();

@@ -73,6 +73,18 @@ pub mod lucky {
             self.input = input.to_string();
         }
 
+        pub fn get_dictionary_cache_keys(&self) -> Vec<JsValue> {
+            self.inner.dictionary_cache.keys().map(|k|JsValue::from(k)).collect()
+        }
+
+        pub fn get_dictionary_value(&self, key: String) -> JsValue {
+            JsValue::from(self.inner.dictionary_cache.get(&key).unwrap())
+        }
+
+        pub fn get_dictionary_selection(&self) -> Vec<JsValue> {
+            self.inner.dictionary_selection.iter().map(|selection|JsValue::from(selection)).collect()
+        }
+
         pub fn has_dictionary(&self, key: String) -> bool {
             self.inner.has_dictionary(key)
         }
@@ -175,6 +187,18 @@ pub mod hashing {
                 algorithm: None,
                 encoder: None,
             }
+        }
+
+        pub fn get_dictionary_cache_keys(&self) -> Vec<JsValue> {
+            self.inner.dictionary_cache.keys().map(|k|JsValue::from(k)).collect()
+        }
+
+        pub fn get_dictionary_value(&self, key: String) -> JsValue {
+            JsValue::from(self.inner.dictionary_cache.get(&key).unwrap())
+        }
+
+        pub fn get_dictionary_selection(&self) -> Vec<JsValue> {
+            self.inner.dictionary_selection.iter().map(|selection|JsValue::from(selection)).collect()
         }
 
         pub fn set_input(&mut self, input: &str) {
