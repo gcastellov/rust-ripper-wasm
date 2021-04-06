@@ -17,6 +17,7 @@ const debounce = (callback, delay) => {
 };
 
 let isUsingGetLucky = false;
+let isCancelationRequested = false;
 
 mem.then(m => {
     const memory = m.memory;
@@ -31,7 +32,15 @@ mem.then(m => {
         const txtLastWord = document.getElementById("txtLastWord");
         
         let mutex = new Mutex();
-        let ripper = new j.HashRipper();
+
+        const getSelectedAlgorithm = () => {
+            const algorithms = Array.from(rbAlgorithm);
+            const selected =  algorithms.find(algorithm => algorithm.checked);
+            return selected.value;
+        };
+        
+        const selAlgorithm = getSelectedAlgorithm();
+        let ripper = selAlgorithm === "100" ? new j.LuckyRipper() : new j.HashRipper();
 
         const swapDictionaries = (from, to) => {
             from.get_dictionary_cache_keys().forEach(key => {
@@ -78,11 +87,26 @@ mem.then(m => {
             if (found) {
                 txtPwdOutput.value = ripper.get_match();
                 txtResult.value = "FOUND!!";
-            } else if (ripper.is_checking()) {
+            } else if (isCancelationRequested === false && ripper.is_checking()) {
                 requestAnimationFrame(loop);
+            } else if (isCancelationRequested) {
+                txtResult.value = "CANCELLED";
             } else {
                 txtResult.value = "NOT FOUND!!";
             }
+        };
+
+        const selectAll = async () => {
+            const ckDictionaries = document.getElementsByName("ckDictionary");
+            ckDictionaries.forEach(dictionary => {
+                dictionary.checked = true;
+            });
+
+            await updateDictionarySelection();
+        };
+
+        const cancel = () => {
+            isCancelationRequested = true;
         };
 
         const execute = () => {
@@ -93,6 +117,7 @@ mem.then(m => {
 
         const run = () => {
             return new Promise((resolve, reject) => {
+                isCancelationRequested = false;
                 const pwd = document.getElementById("txtPwdInput").value;
                 const algorithm = getSelectedAlgorithm();
                 if (algorithm != "100") {
@@ -104,12 +129,6 @@ mem.then(m => {
             });
         };
        
-        const getSelectedAlgorithm = () => {
-            const algorithms = Array.from(rbAlgorithm);
-            const selected =  algorithms.find(algorithm => algorithm.checked);
-            return selected.value;
-        };
-
         const getSelectedDictionaries = () => {
             const dictionaries = Array.from(ckDictionaries);
             return dictionaries
@@ -162,8 +181,14 @@ mem.then(m => {
 
         await updateDictionarySelection();
 
-        const button = document.getElementById("btnRun");
-        button.addEventListener("click", execute);
+        const btnRun = document.getElementById("btnRun");
+        btnRun.addEventListener("click", execute);
+
+        const btnAll = document.getElementById("btnAll");
+        btnAll.addEventListener("click", selectAll);
+
+        const btnCancel = document.getElementById("btnCancel");
+        btnCancel.addEventListener("click", cancel);
 
         rbAlgorithm.forEach(element => element.addEventListener("change", clean));
         ckDictionaries.forEach(element => element.addEventListener("change", debounce(updateDictionarySelection, 2000)));
