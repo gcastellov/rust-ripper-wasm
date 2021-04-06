@@ -1,7 +1,6 @@
 pub mod core {
-    
     use std::collections::HashMap;
-
+    
     pub struct Dictionary {
         word_list: Vec<String>,
         index: usize

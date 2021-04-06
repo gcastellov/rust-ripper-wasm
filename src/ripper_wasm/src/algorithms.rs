@@ -324,4 +324,10 @@ mod tests {
         ripemd320: (HashAlgorithm::Ripemd320, "f1c1c231d301abcf2d7daae0269ff3e7bc68e623ad723aa068d316b056d26b7d1bb6f0cc0f28336d"),
         whirlpool: (HashAlgorithm::Whirlpool, "bb4f1451ec1b8326643d25d74547591619cb01dd1f104d729a13494cbd95382d3526b00a2d3fdf448e1e4b39887c54fe2aea9767872b58ed361eb3a12075c5b5"),
     }
+
+    #[test]
+    fn get_all_hash_algorithms() {
+        let all: Vec<HashAlgorithm> = HashAlgorithm::iterator().cloned().collect();
+        assert!(!all.is_empty())
+    }
 }
