@@ -1,4 +1,5 @@
 use crate::rippers::CHUNK_SIZE;
+use crate::DictionaryManager;
 use crate::HashEncoderFactory;
 use crate::HashEncoder;
 use crate::Inner;
@@ -16,24 +17,16 @@ pub struct HashRipper {
 impl HashRipper {
     
     #[wasm_bindgen(constructor)]
-    pub fn new() -> Self {
+    pub fn new(dictionary_manager: &DictionaryManager) -> Self {
         HashRipper {
-            inner: Inner::default(),
+            inner: Inner::new(dictionary_manager.get_dictionary()),
             algorithm: None,
             encoder: None,
         }
     }
 
-    pub fn get_dictionary_cache_keys(&self) -> Vec<JsValue> {
-        self.inner.dictionary_cache.keys().map(|k|JsValue::from(k)).collect()
-    }
-
-    pub fn get_dictionary_value(&self, key: String) -> JsValue {
-        JsValue::from(self.inner.dictionary_cache.get(&key).unwrap())
-    }
-
-    pub fn get_dictionary_selection(&self) -> Vec<JsValue> {
-        self.inner.dictionary_selection.iter().map(|selection|JsValue::from(selection)).collect()
+    pub fn get_last_word(&self) -> String {
+        (self.inner.dictionary.get_last().unwrap_or(&String::default())).to_owned()
     }
 
     pub fn set_input(&mut self, input: &str) {
@@ -64,10 +57,6 @@ impl HashRipper {
         HashRipper::core_check(milliseconds, &mut self.inner, encoder)
     }
 
-    pub fn get_word_list_count(&self) -> usize {
-        self.inner.get_word_list_count()
-    }
-
     pub fn get_progress(&self) -> usize {
         self.inner.dictionary.get_index()
     }
@@ -80,33 +69,13 @@ impl HashRipper {
         self.inner.get_elapsed_seconds()
     }
 
-    pub fn get_last_word(&self) -> String {
-        self.inner.get_last_word()
-    }
-
-    pub fn has_dictionary(&self, key: String) -> bool {
-        self.inner.has_dictionary(key)
-    }
-
-    pub fn add_dictionary(&mut self, key: &str, value: &str) {
-        self.inner.add_dictionary(key, value)
-    }
-
-    pub fn load_dictionaries(&mut self, keys: Vec<JsValue>) {        
-        let keys_as_string = keys
-            .iter()
-            .filter_map(|k|k.as_string())
-            .collect();
-
-        self.inner.load_dictionaries(keys_as_string);
-    }
-
     pub fn is_checking(&self) -> bool {
-        self.inner.word_match.is_none() && self.get_progress() < self.get_word_list_count()
+        self.inner.word_match.is_none() && self.get_progress() < self.inner.dictionary.len()
     }
 }
 
 impl HashRipper {
+
     pub fn core_check(milliseconds: f64, mut inner: &mut Inner, encoder: &Box<dyn HashEncoder>) -> bool {
         let starting = js_sys::Date::now();
 
