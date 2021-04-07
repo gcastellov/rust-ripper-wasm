@@ -5,6 +5,11 @@ const mem =  import("./node_modules/rust_ripper_wasm/rust_ripper_wasm_bg.wasm");
 const txtWordProgress = document.getElementById("txtWordProgress");
 const txtResult = document.getElementById("txtResult");
 const lblVersion = document.getElementById("lblVersion");
+const btnRun = document.getElementById("btnRun");
+const btnCancel = document.getElementById("btnCancel");
+const btnAll = document.getElementById("btnAll");
+
+const DISABLED_ATTR = "disabled";
 
 lblVersion.innerHTML = APP_VERSION;
 
@@ -16,12 +21,9 @@ const debounce = (callback, delay) => {
     }
 };
 
-let isUsingGetLucky = false;
 let isCancelationRequested = false;
 
 mem.then(m => {
-    const memory = m.memory;
-
     js.then(async j => {
 
         const ckDictionaries = document.getElementsByName("ckDictionary");
@@ -32,6 +34,8 @@ mem.then(m => {
         const txtLastWord = document.getElementById("txtLastWord");
         
         let mutex = new Mutex();
+        let dictionaryManager = new j.DictionaryManager();
+        let ripper = null;
 
         const getSelectedAlgorithm = () => {
             const algorithms = Array.from(rbAlgorithm);
@@ -39,19 +43,6 @@ mem.then(m => {
             return selected.value;
         };
         
-        const selAlgorithm = getSelectedAlgorithm();
-        let ripper = selAlgorithm === "100" ? new j.LuckyRipper() : new j.HashRipper();
-
-        const swapDictionaries = (from, to) => {
-            from.get_dictionary_cache_keys().forEach(key => {
-                let value = from.get_dictionary_value(key);
-                to.add_dictionary(key, value);
-            });
-
-            let selection = from.get_dictionary_selection();
-            to.load_dictionaries(selection);
-        };
-
         const clean = (from) => {
             return new Promise((resolve, reject) => {
                 txtResult.value = "";
@@ -59,41 +50,32 @@ mem.then(m => {
                 txtWordProgress.value = "";
                 txtElapsedTime.value = "";
                 txtLastWord.value = "";
-
-                if (from != null && from.srcElement.defaultValue == "100") {
-                    let lucky = new j.LuckyRipper();
-                    swapDictionaries(ripper, lucky);
-                    ripper = lucky;                    
-                    isUsingGetLucky = true;
-                } else if (from != null && isUsingGetLucky) {
-                    let hasher = new j.HashRipper();
-                    swapDictionaries(ripper, hasher);
-                    ripper = hasher;
-                    isUsingGetLucky = false;
-                }
-
                 resolve();
             });
         };
 
-        const loop = () => {
+        const loop = async () => {
             const found = ripper.check(500);
             const progress = ripper.get_progress();
             const lastWord =  ripper.get_last_word();
             txtElapsedTime.value = ripper.get_elapsed_seconds();
             txtLastWord.value = lastWord;
             txtWordProgress.value = progress;
+
+            if (!found && isCancelationRequested === false && ripper.is_checking()) {
+                return requestAnimationFrame(loop);
+            }
             
             if (found) {
                 txtPwdOutput.value = ripper.get_match();
                 txtResult.value = "FOUND!!";
-            } else if (isCancelationRequested === false && ripper.is_checking()) {
-                requestAnimationFrame(loop);
             } else if (isCancelationRequested) {
                 txtResult.value = "CANCELLED";
             } else {
                 txtResult.value = "NOT FOUND!!";
             }
+
+            await unblock();
         };
 
         const selectAll = async () => {
@@ -105,24 +87,61 @@ mem.then(m => {
             await updateDictionarySelection();
         };
 
-        const cancel = () => {
+        const cancel = async () => {
             isCancelationRequested = true;
+            await unblock();
         };
 
         const execute = () => {
             clean()
+                .then(block())
                 .then(run())
                 .then(requestAnimationFrame(loop));
         };
+
+        const unblock = () => {
+            return new Promise((resolve, reject) => { 
+                document.getElementsByName("rbAlgorithm").forEach(radio => {
+                    radio.removeAttribute(DISABLED_ATTR);
+                });
+                document.getElementsByName("ckDictionary").forEach(check => {
+                    check.removeAttribute(DISABLED_ATTR);
+                });
+                btnRun.removeAttribute(DISABLED_ATTR);
+                btnAll.removeAttribute(DISABLED_ATTR);
+                resolve();
+            });
+        };
+
+        const block = () => {
+            return new Promise((resolve, reject) => { 
+                document.getElementsByName("rbAlgorithm").forEach(radio => {
+                    radio.setAttribute(DISABLED_ATTR, "true");
+                });
+                document.getElementsByName("ckDictionary").forEach(check => {
+                    check.setAttribute(DISABLED_ATTR, "true");
+                });
+                btnRun.setAttribute(DISABLED_ATTR, "true");
+                btnAll.setAttribute(DISABLED_ATTR, "true");
+                resolve();
+            });
+        }
 
         const run = () => {
             return new Promise((resolve, reject) => {
                 isCancelationRequested = false;
                 const pwd = document.getElementById("txtPwdInput").value;
                 const algorithm = getSelectedAlgorithm();
-                if (algorithm != "100") {
-                    ripper.set_algorithm(algorithm);
+
+                if (algorithm == "100") {
+                    let lucky = new j.LuckyRipper(dictionaryManager);
+                    ripper = lucky;                    
+                } else {
+                    let hasher = new j.HashRipper(dictionaryManager);
+                    hasher.set_algorithm(algorithm);
+                    ripper = hasher;
                 }
+
                 ripper.set_input(pwd);
                 ripper.start_matching();
                 resolve();
@@ -160,7 +179,7 @@ mem.then(m => {
             var headers = new Headers();
             headers.append('Content-Type','text/plain; charset=UTF-16');
             const promises = dictionaries
-                .filter(dictionary => !ripper.has_dictionary(dictionary))
+                .filter(dictionary => !dictionaryManager.has_dictionary(dictionary))
                 .map(dictionary => {
                     return fetch(`./assets/${dictionary}`, headers)
                         .then(r => r.arrayBuffer())
@@ -169,27 +188,21 @@ mem.then(m => {
                             const decoder = new TextDecoder(encoding);
                             return decoder.decode(buffer);
                         })
-                        .then(text => ripper.add_dictionary(dictionary, text));
+                        .then(text => dictionaryManager.add_dictionary(dictionary, text));
                 });
 
             await Promise.all(promises);
 
-            ripper.load_dictionaries(dictionaries);
-            txtWordListCount.value = ripper.get_word_list_count();
+            dictionaryManager.load_dictionaries(dictionaries);
+            txtWordListCount.value = dictionaryManager.get_word_list_count();
             release();
         };
 
         await updateDictionarySelection();
 
-        const btnRun = document.getElementById("btnRun");
         btnRun.addEventListener("click", execute);
-
-        const btnAll = document.getElementById("btnAll");
         btnAll.addEventListener("click", selectAll);
-
-        const btnCancel = document.getElementById("btnCancel");
         btnCancel.addEventListener("click", cancel);
-
         rbAlgorithm.forEach(element => element.addEventListener("change", clean));
         ckDictionaries.forEach(element => element.addEventListener("change", debounce(updateDictionarySelection, 2000)));
     });

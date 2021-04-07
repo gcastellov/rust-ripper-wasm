@@ -1,4 +1,5 @@
 use crate::rippers::CHUNK_SIZE;
+use crate::DictionaryManager;
 use crate::SymetricEncoder;
 use crate::SymetricEncoderFactory;
 use crate::Dictionary;
@@ -18,9 +19,9 @@ pub struct SymetricRipper {
 impl SymetricRipper {
 
     #[wasm_bindgen(constructor)]
-    pub fn new() -> Self {
+    pub fn new(dictionary_manager: &DictionaryManager) -> Self {
         SymetricRipper {
-            inner: Inner::default(),
+            inner: Inner::new(dictionary_manager.get_dictionary()),
             key_dictionary: Dictionary::default(),
             algorithm: None,
             encoder: None,
@@ -33,23 +34,6 @@ impl SymetricRipper {
 
     pub fn set_algorithm(&mut self, algorithm: SymetricAlgorithm) {
         self.algorithm = Some(algorithm);
-    }
-
-    pub fn has_dictionary(&self, key: String) -> bool {
-        self.inner.has_dictionary(key)
-    }
-
-    pub fn add_dictionary(&mut self, key: &str, value: &str) {
-        self.inner.add_dictionary(key, value)
-    }
-
-    pub fn load_dictionaries(&mut self, keys: Vec<JsValue>) {        
-        let keys_as_string = keys
-            .iter()
-            .filter_map(|k|k.as_string())
-            .collect();
-
-        self.inner.load_dictionaries(keys_as_string);
     }
 
     pub fn start_matching(&mut self) {
@@ -102,10 +86,6 @@ impl SymetricRipper {
         self.inner.word_match.is_some()
     }
 
-    pub fn get_word_list_count(&self) -> usize {
-        self.inner.get_word_list_count()
-    }
-
     pub fn get_progress(&self) -> usize {
         let mut rounds: usize = 0;
         let current_index = self.key_dictionary.get_index();
@@ -125,6 +105,6 @@ impl SymetricRipper {
     }
 
     pub fn get_last_word(&self) -> String {
-        self.inner.get_last_word()
+        (self.inner.dictionary.get_last().unwrap_or(&String::default())).to_owned()
     }
 }

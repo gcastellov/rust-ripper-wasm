@@ -1,3 +1,4 @@
+use crate::DictionaryManager;
 use crate::rippers::hashing::HashRipper;
 use crate::HashEncoder;
 use crate::HashAlgorithm;
@@ -56,56 +57,27 @@ pub struct LuckyRipper {
 impl LuckyRipper {
     
     #[wasm_bindgen(constructor)]
-    pub fn new() -> Self {
+    pub fn new(dictionary_manager: &DictionaryManager) -> Self {
         LuckyRipper {
-            inner: Inner::default(),
+            inner: Inner::new(dictionary_manager.get_dictionary()),
             algorithm_list: AlgorithmList::default(),
             encoder: None,
             input: String::default(),
         }
     }
 
+    pub fn get_last_word(&self) -> String {
+        (self.inner.dictionary.get_last().unwrap_or(&String::default())).to_owned()
+    }
+
     pub fn set_input(&mut self, input: &str) {
         self.input = input.to_string();
-    }
-
-    pub fn get_dictionary_cache_keys(&self) -> Vec<JsValue> {
-        self.inner.dictionary_cache.keys().map(|k|JsValue::from(k)).collect()
-    }
-
-    pub fn get_dictionary_value(&self, key: String) -> JsValue {
-        JsValue::from(self.inner.dictionary_cache.get(&key).unwrap())
-    }
-
-    pub fn get_dictionary_selection(&self) -> Vec<JsValue> {
-        self.inner.dictionary_selection.iter().map(|selection|JsValue::from(selection)).collect()
-    }
-
-    pub fn has_dictionary(&self, key: String) -> bool {
-        self.inner.has_dictionary(key)
-    }
-
-    pub fn add_dictionary(&mut self, key: &str, value: &str) {
-        self.inner.add_dictionary(key, value)
-    }
-
-    pub fn load_dictionaries(&mut self, keys: Vec<JsValue>) {        
-        let keys_as_string = keys
-            .iter()
-            .filter_map(|k|k.as_string())
-            .collect();
-
-        self.inner.load_dictionaries(keys_as_string);
-    }
-
-    pub fn get_word_list_count(&self) -> usize {
-        self.inner.get_word_list_count()
     }
 
     pub fn get_progress(&mut self) -> usize {
         let all_algorithms = HashAlgorithm::iterator().len();
         let checked_algorithms = all_algorithms - self.algorithm_list.len();
-        checked_algorithms * self.get_word_list_count() + self.inner.dictionary.get_index()
+        checked_algorithms * self.inner.dictionary.len() + self.inner.dictionary.get_index()
     }
 
     pub fn get_match(&self) -> String {
@@ -114,10 +86,6 @@ impl LuckyRipper {
 
     pub fn get_elapsed_seconds(&self) -> f64 {
         self.inner.get_elapsed_seconds()
-    }
-
-    pub fn get_last_word(&self) -> String {
-        self.inner.get_last_word()
     }
 
     pub fn start_matching(&mut self) {
@@ -144,7 +112,7 @@ impl LuckyRipper {
         let encoder = self.encoder.as_ref().unwrap();
         let result = HashRipper::core_check(milliseconds, &mut self.inner, encoder);
 
-        if self.inner.dictionary.get_index() == self.inner.get_word_list_count() && self.inner.word_match.is_none() {
+        if self.inner.dictionary.get_index() == self.inner.dictionary.len() && self.inner.word_match.is_none() {
             self.inner.dictionary.start();
         }
 
