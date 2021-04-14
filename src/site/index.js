@@ -2,15 +2,51 @@ import {Mutex} from "async-mutex";
 const js = import("./node_modules/rust_ripper_wasm/rust_ripper_wasm.js");
 const mem =  import("./node_modules/rust_ripper_wasm/rust_ripper_wasm_bg.wasm");
 
-const txtWordProgress = document.getElementById("txtWordProgress");
-const txtResult = document.getElementById("txtResult");
-const lblVersion = document.getElementById("lblVersion");
-const btnRun = document.getElementById("btnRun");
-const btnCancel = document.getElementById("btnCancel");
-const btnAll = document.getElementById("btnAll");
-
 const DISABLED_ATTR = "disabled";
+const elements = {
+    TXT_PROGRESS: "txtWordProgress",
+    TXT_RESULT: "txtResult",
+    LBL_VERSION: "lblVersion",
+    BTN_RUN: "btnRun",
+    BTN_CANCEL: "btnCancel",
+    BTN_ALL: "btnAll",
+    CK_DICTIONARY: "ckDictionary",
+    RB_ALGORITHM: "rbAlgorithm",
+    TXT_WORD_COUNT: "txtWordListCount",
+    TXT_OUTPUT: "txtPwdOutput",
+    TXT_INPUT: "txtPwdInput",
+    TXT_ELAPSED_TIME: "txtElapsedTime",
+    TXT_LAST_WORD: "txtLastWord",
+};
 
+const events = {
+    CLICK: "click",
+    CHANGE: "change",  
+};
+
+const dictionaries = {
+    RUSSIAN: "russian.txt",
+    SPANISH: "spanish.txt",
+    FRENCH: "french.txt",
+    CZECH: "czech.txt",
+    FINNISH: "finnish.txt",
+    SWEDISH: "swedish.txt",
+    GERMAN: "german.txt",
+};
+
+const encodings = {
+    WIN_1251: "Windows-1251",
+    WIN_1252: "Windows-1252",
+    UTF_8: "utf-8",
+};
+
+const txtWordProgress = document.getElementById(elements.TXT_PROGRESS);
+const txtResult = document.getElementById(elements.TXT_RESULT);
+const lblVersion = document.getElementById(elements.LBL_VERSION);
+const btnRun = document.getElementById(elements.BTN_RUN);
+const btnCancel = document.getElementById(elements.BTN_CANCEL);
+const btnAll = document.getElementById(elements.BTN_ALL);
+let isCancelationRequested = false;
 lblVersion.innerHTML = APP_VERSION;
 
 const debounce = (callback, delay) => {
@@ -21,24 +57,22 @@ const debounce = (callback, delay) => {
     }
 };
 
-let isCancelationRequested = false;
-
 mem.then(m => {
     js.then(async j => {
 
-        const ckDictionaries = document.getElementsByName("ckDictionary");
-        const rbAlgorithm = document.getElementsByName("rbAlgorithm");
-        const txtWordListCount = document.getElementById("txtWordListCount");
-        const txtPwdOutput = document.getElementById("txtPwdOutput");
-        const txtElapsedTime = document.getElementById("txtElapsedTime");
-        const txtLastWord = document.getElementById("txtLastWord");
+        const ckDictionaries = document.getElementsByName(elements.CK_DICTIONARY);
+        const rbAlgorithms = document.getElementsByName(elements.RB_ALGORITHM);
+        const txtWordListCount = document.getElementById(elements.TXT_WORD_COUNT);
+        const txtPwdOutput = document.getElementById(elements.TXT_OUTPUT);
+        const txtElapsedTime = document.getElementById(elements.TXT_ELAPSED_TIME);
+        const txtLastWord = document.getElementById(elements.TXT_LAST_WORD);
         
         let mutex = new Mutex();
         let dictionaryManager = new j.DictionaryManager();
         let ripper = null;
 
         const getSelectedAlgorithm = () => {
-            const algorithms = Array.from(rbAlgorithm);
+            const algorithms = Array.from(rbAlgorithms);
             const selected =  algorithms.find(algorithm => algorithm.checked);
             return selected.value;
         };
@@ -79,7 +113,6 @@ mem.then(m => {
         };
 
         const selectAll = async () => {
-            const ckDictionaries = document.getElementsByName("ckDictionary");
             ckDictionaries.forEach(dictionary => {
                 dictionary.checked = true;
             });
@@ -101,28 +134,24 @@ mem.then(m => {
 
         const unblock = () => {
             return new Promise((resolve, reject) => { 
-                document.getElementsByName("rbAlgorithm").forEach(radio => {
-                    radio.removeAttribute(DISABLED_ATTR);
-                });
-                document.getElementsByName("ckDictionary").forEach(check => {
-                    check.removeAttribute(DISABLED_ATTR);
-                });
+                rbAlgorithms.forEach(radio => radio.removeAttribute(DISABLED_ATTR));
+                ckDictionaries.forEach(check => check.removeAttribute(DISABLED_ATTR));
                 btnRun.removeAttribute(DISABLED_ATTR);
-                btnAll.removeAttribute(DISABLED_ATTR);
+                btnAll.removeAttribute(DISABLED_ATTR);                
+                btnRun.classList.replace("cursor-not-allowed", "hover:bg-indigo-700");
+                btnAll.classList.replace("cursor-not-allowed", "hover:bg-gray-500");
                 resolve();
             });
         };
 
         const block = () => {
             return new Promise((resolve, reject) => { 
-                document.getElementsByName("rbAlgorithm").forEach(radio => {
-                    radio.setAttribute(DISABLED_ATTR, "true");
-                });
-                document.getElementsByName("ckDictionary").forEach(check => {
-                    check.setAttribute(DISABLED_ATTR, "true");
-                });
+                rbAlgorithms.forEach(radio => radio.setAttribute(DISABLED_ATTR, "true"));
+                ckDictionaries.forEach(check => check.setAttribute(DISABLED_ATTR, "true"));
                 btnRun.setAttribute(DISABLED_ATTR, "true");
                 btnAll.setAttribute(DISABLED_ATTR, "true");
+                btnRun.classList.replace("hover:bg-indigo-700", "cursor-not-allowed");
+                btnAll.classList.replace("hover:bg-gray-500", "cursor-not-allowed");
                 resolve();
             });
         }
@@ -130,7 +159,7 @@ mem.then(m => {
         const run = () => {
             return new Promise((resolve, reject) => {
                 isCancelationRequested = false;
-                const pwd = document.getElementById("txtPwdInput").value;
+                const pwd = document.getElementById(elements.TXT_INPUT).value;
                 const algorithm = getSelectedAlgorithm();
 
                 if (algorithm == "100") {
@@ -149,8 +178,8 @@ mem.then(m => {
         };
        
         const getSelectedDictionaries = () => {
-            const dictionaries = Array.from(ckDictionaries);
-            return dictionaries
+            const selDictionaries = Array.from(ckDictionaries);
+            return selDictionaries
                 .filter(dictionary => {
                     return dictionary.checked;
                 })
@@ -159,26 +188,25 @@ mem.then(m => {
 
         const getEncoding = (dictionary) => {
             switch (dictionary) {
-                case "russian.txt":
-                    return "Windows-1251";
-                case "spanish.txt":
-                case "french.txt":
-                case "czech.txt":
-                case "finnish.txt":
-                case "swedish.txt":
-                case "german.txt":
-                    return "Windows-1252";
+                case dictionaries.RUSSIAN:
+                    return encodings.WIN_1251;
+                case dictionaries.SPANISH:
+                case dictionaries.FRENCH:
+                case dictionaries.CZECH:
+                case dictionaries.FINNISH:
+                case dictionaries.SWEDISH:
+                case dictionaries.GERMAN:
+                    return encodings.WIN_1252;
                 default:
-                    return "utf-8";
+                    return encodings.UTF_8;
             }
         };
 
         const updateDictionarySelection = async () => {
             const release = await mutex.acquire();
-            const dictionaries = getSelectedDictionaries();
+            const selDictionaries = getSelectedDictionaries();
             var headers = new Headers();
-            headers.append('Content-Type','text/plain; charset=UTF-16');
-            const promises = dictionaries
+            const promises = selDictionaries
                 .filter(dictionary => !dictionaryManager.has_dictionary(dictionary))
                 .map(dictionary => {
                     return fetch(`./assets/${dictionary}`, headers)
@@ -193,17 +221,17 @@ mem.then(m => {
 
             await Promise.all(promises);
 
-            dictionaryManager.load_dictionaries(dictionaries);
+            dictionaryManager.load_dictionaries(selDictionaries);
             txtWordListCount.value = dictionaryManager.get_word_list_count();
             release();
         };
 
         await updateDictionarySelection();
 
-        btnRun.addEventListener("click", execute);
-        btnAll.addEventListener("click", selectAll);
-        btnCancel.addEventListener("click", cancel);
-        rbAlgorithm.forEach(element => element.addEventListener("change", clean));
-        ckDictionaries.forEach(element => element.addEventListener("change", debounce(updateDictionarySelection, 2000)));
+        btnRun.addEventListener(events.CLICK, execute);
+        btnAll.addEventListener(events.CLICK, selectAll);
+        btnCancel.addEventListener(events.CLICK, cancel);
+        rbAlgorithms.forEach(element => element.addEventListener(events.CHANGE, clean));
+        ckDictionaries.forEach(element => element.addEventListener(events.CHANGE, debounce(updateDictionarySelection, 2000)));
     });
 });
