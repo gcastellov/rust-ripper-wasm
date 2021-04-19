@@ -2,6 +2,7 @@ pub mod core {
     use std::collections::HashMap;
     use wasm_bindgen::prelude::*;
     
+    #[derive(Default)]
     pub struct Dictionary {
         word_list: Vec<String>,
         index: usize
@@ -9,7 +10,6 @@ pub mod core {
 
     #[wasm_bindgen]
     pub struct DictionaryManager {
-        dictionary: Dictionary,
         dictionary_cache: HashMap<String, Vec<String>>,
         dictionary_selection: Vec<String>,
     }
@@ -18,13 +18,7 @@ pub mod core {
         pub input: String,
         pub word_match: Option<String>,
         pub starting_at: Option<f64>,
-        pub dictionary: Dictionary,
-    }
-
-    impl DictionaryManager {
-        pub fn get_dictionary(&self) -> Dictionary {
-            self.dictionary.to_owned()
-        }
+        pub dictionary: Box<Dictionary>,
     }
 
     #[wasm_bindgen]
@@ -36,7 +30,11 @@ pub mod core {
         }
 
         pub fn get_word_list_count(&self) -> usize {
-            self.dictionary.len()
+            self.dictionary_selection
+                .iter()
+                .filter_map(|key|self.dictionary_cache.get(key))
+                .map(|entries|entries.len())
+                .sum()
         }
 
         pub fn has_dictionary(&self, key: &str) -> bool {
@@ -49,21 +47,22 @@ pub mod core {
         }
     
         pub fn load_dictionaries(&mut self, keys: Vec<JsValue>) {        
-            let keys_as_string = keys
+            self.dictionary_selection = keys
                 .iter()
                 .filter_map(|k|k.as_string())
                 .collect();
-    
-            if self.dictionary_selection != keys_as_string {
-                self.dictionary_selection = keys_as_string;
-                let entries: Vec<String> = self.dictionary_selection
+        }
+    }
+
+    impl DictionaryManager {
+        pub fn make(&self) -> Box<Dictionary> {
+            let entries: Vec<String> = self.dictionary_selection
                     .iter()
                     .filter_map(|key|self.dictionary_cache.get(key))
                     .flat_map(|word|word.to_owned())
                     .collect();
         
-                self.dictionary.load(entries)
-            }
+            Box::new(Dictionary::new(&entries))
         }
 
         fn extract(entries: &str) -> Vec<String> {
@@ -79,7 +78,6 @@ pub mod core {
     impl Default for DictionaryManager {
         fn default() -> Self {
             Self {
-                dictionary: Dictionary::default(),
                 dictionary_cache: HashMap::default(),
                 dictionary_selection: Vec::default(),
             }
@@ -87,9 +85,12 @@ pub mod core {
     }
 
     impl Dictionary {
-        
-        fn load(&mut self, entries: Vec<String>) {
-            self.word_list = entries
+
+        fn new(entries: &[String]) -> Self {
+            Dictionary {
+                word_list: Vec::from(entries),
+                index: 0,
+            }
         }
 
         pub fn len(&self) -> usize {
@@ -129,15 +130,6 @@ pub mod core {
         }
     }
 
-    impl Default for Dictionary {   
-        fn default() -> Self {
-            Dictionary {
-                word_list: Vec::default(),
-                index: 0
-            }
-        }
-    }
-
     impl Iterator for Dictionary {
         type Item = String;
         fn next(&mut self) -> Option<Self::Item> { 
@@ -151,18 +143,9 @@ pub mod core {
         }
     }
 
-    impl Clone for Dictionary {    
-        fn clone(&self) -> Self { 
-            Dictionary {
-                index: 0,
-                word_list: self.word_list.clone()
-            }
-        }
-    }
-
     impl Inner {
 
-        pub fn new(dictionary: Dictionary) -> Self {
+        pub fn new(dictionary: Box<Dictionary>) -> Self {
             Inner {
                 input: String::default(),
                 dictionary: dictionary,
@@ -206,8 +189,7 @@ pub mod core {
 
         #[test]
         fn iterate_when_not_empty_return_some() {
-            let mut dictionary = Dictionary::default();
-            dictionary.load(vec![ String::from("my_word") ]);
+            let mut dictionary = Dictionary::new(vec![ String::from("my_word") ].as_slice());
             let word = dictionary.next();
             assert!(word.is_some());
             assert!(dictionary.next().is_none());
@@ -242,9 +224,7 @@ pub mod core {
                 .map(|num|num.to_string())
                 .collect();
 
-            let mut dictionary = Dictionary::default();
-            dictionary.load(words);
-
+            let mut dictionary = Dictionary::new(words.as_slice());
             let mut rounds: usize = 0;
             
             while let Some(_) = dictionary.get_chunk(CHUNK_SIZE) {
@@ -258,8 +238,7 @@ pub mod core {
 
         #[test]
         fn get_last() {
-            let mut dictionary = Dictionary::default();
-            dictionary.load(vec![ String::from("one"), String::from("two") ]);
+            let mut dictionary = Dictionary::new(vec![ String::from("one"), String::from("two") ].as_slice());
 
             assert!(dictionary.get_last().is_none());
 

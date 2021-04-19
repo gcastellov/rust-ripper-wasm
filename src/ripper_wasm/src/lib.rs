@@ -44,7 +44,7 @@ mod tests {
                 dictionary_manager.add_dictionary(ENGLISH_KEY, WORD_LIST);
                 dictionary_manager.load_dictionaries(vec![ JsValue::from_str(ENGLISH_KEY) ]);
 
-                let mut cracker: HashRipper = HashRipper::new(&dictionary_manager);
+                let mut cracker: HashRipper = HashRipper::new(&mut dictionary_manager);
                 cracker.set_algorithm(algorithm);
                 cracker.set_input(input);
                 cracker.start_matching();
@@ -80,7 +80,7 @@ mod tests {
         dictionary_manager.add_dictionary(ENGLISH_KEY, words.as_str());
         dictionary_manager.load_dictionaries(dictionary_lists);
         
-        let mut cracker: HashRipper = HashRipper::new(&dictionary_manager);
+        let mut cracker: HashRipper = HashRipper::new(&mut dictionary_manager);
         cracker.set_algorithm(HashAlgorithm::Md5);
         cracker.set_input("e57023ed682d83a41d25acb650c877da");
         cracker.start_matching();
@@ -106,7 +106,7 @@ mod tests {
         dictionary_manager.add_dictionary(ENGLISH_KEY, words.as_str());
         dictionary_manager.load_dictionaries(dictionary_lists);
 
-        let mut cracker: LuckyRipper = LuckyRipper::new(&dictionary_manager);
+        let mut cracker: LuckyRipper = LuckyRipper::new(&mut dictionary_manager);
         cracker.set_input("daa136908bd66810f306b788c644f470");
         cracker.start_matching();
     
@@ -139,19 +139,20 @@ mod tests {
     #[wasm_bindgen_test]
     fn dictionary_contains_word_entries() {
         const WORD_LIST_ONE: &str = "one\r\ntwo\r\nthree";
-        const WORD_LIST_TWO: &str = "one\r\ntwo\r\nthree\r\nfour";        
+        const WORD_LIST_TWO: &str = "one\r\ntwo\r\nthree\r\nfour";
 
         let mut dictionary_manager = DictionaryManager::new();
         dictionary_manager.add_dictionary(ENGLISH_KEY, WORD_LIST_ONE);
         dictionary_manager.add_dictionary(FRENCH_KEY, WORD_LIST_TWO);
         dictionary_manager.load_dictionaries(vec![ JsValue::from_str(ENGLISH_KEY), JsValue::from_str(FRENCH_KEY) ]);        
-        let actual: Dictionary = dictionary_manager.get_dictionary();
-        assert_eq!(7, actual.len());
+        let actual = dictionary_manager.get_word_list_count();
+        assert_eq!(7, actual);
     }
 
     #[wasm_bindgen_test]
-    fn reset_clear_result() {            
-        let mut inner = Inner::new(Dictionary::default());
+    fn reset_clear_result() {
+        let dictionary = Dictionary::default();
+        let mut inner = Inner::new(Box::new(dictionary));
         inner.word_match = Some(String::from("match"));
         inner.start_ticking();
         inner.reset();
@@ -164,7 +165,7 @@ mod tests {
 
     #[test]
     fn get_last_word_when_empty() {
-        let ripper = HashRipper::new(&DictionaryManager::default());
+        let ripper = HashRipper::new(&mut DictionaryManager::default());
         let actual = ripper.get_last_word();
         assert_eq!(actual, String::default());
     }
