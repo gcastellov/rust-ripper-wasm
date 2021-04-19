@@ -57,9 +57,9 @@ pub struct LuckyRipper {
 impl LuckyRipper {
     
     #[wasm_bindgen(constructor)]
-    pub fn new(dictionary_manager: &DictionaryManager) -> Self {
+    pub fn new(dictionary_manager: &mut DictionaryManager) -> Self {
         LuckyRipper {
-            inner: Inner::new(dictionary_manager.get_dictionary()),
+            inner: Inner::new(dictionary_manager.make()),
             algorithm_list: AlgorithmList::default(),
             encoder: None,
             input: String::default(),

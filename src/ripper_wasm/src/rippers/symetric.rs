@@ -19,9 +19,9 @@ pub struct SymetricRipper {
 impl SymetricRipper {
 
     #[wasm_bindgen(constructor)]
-    pub fn new(dictionary_manager: &DictionaryManager) -> Self {
+    pub fn new(dictionary_manager: &mut DictionaryManager) -> Self {
         SymetricRipper {
-            inner: Inner::new(dictionary_manager.get_dictionary()),
+            inner: Inner::new(dictionary_manager.make()),
             key_dictionary: Dictionary::default(),
             algorithm: None,
             encoder: None,
