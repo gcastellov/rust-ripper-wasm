@@ -12,6 +12,7 @@ extern crate ripemd160;
 extern crate ripemd128;
 extern crate whirlpool;
 extern crate md2;
+extern crate md6;
 
 mod algorithms;
 mod internals;
@@ -67,6 +68,9 @@ mod tests {
         match_ripemd160: ("25fc9204b31e219e770f9b973b2f206b4049b732", HashAlgorithm::Ripemd160),
         match_ripemd320: ("667d71946caaadeadd667e040a3f9fdcae361e03b2dd7d7ddfebc9f0d37e58528b37f5274bc03170", HashAlgorithm::Ripemd320),
         match_whirlpool: ("8d0e01d8519e6729aeadc4a30735b972d87907b20233a7241644de2eb3120821fd8e26861e5f9f0d31ad9e5631a6b12c63ead9269ca1a15175366ea75595fd24", HashAlgorithm::Whirlpool),
+        match_md6128: ("02f794db3fc295dc0cd81cbdd1979acd", HashAlgorithm::Md6128),
+        match_md6256: ("429f4dbf5792c6b44b6fc9a9b7511644789a06fe4328d841cc80d30d9363d4d3", HashAlgorithm::Md6256),
+        match_md6512: ("7e136d169d5f98f7a8a9c78a60836435dd578baff22d89e54d1b12d45d78c65e12dc7bed702ba78c4b8ae0da602606b7172a1c12740715f4d42f09ccd3813744", HashAlgorithm::Md6512),
     }
 
     #[wasm_bindgen_test]

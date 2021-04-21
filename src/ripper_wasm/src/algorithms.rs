@@ -16,6 +16,9 @@ pub mod implementations {
         Whirlpool = 8,
         Md2 = 9,
         Ripemd160 = 10,
+        Md6128 = 11,
+        Md6256 = 12,
+        Md6512 = 13,
     }
 
     #[wasm_bindgen]
@@ -53,6 +56,9 @@ pub mod implementations {
     struct Ripemd320Wrapper {}
     struct WhirlpoolWrapper {}
     struct Md2Wrapper {}
+    struct Md6128Wrapper {}
+    struct Md6256Wrapper {}
+    struct Md6512Wrapper {}
 
     impl HashAlgorithm {
         pub fn iterator() -> Iter<'static, HashAlgorithm> {
@@ -86,6 +92,9 @@ pub mod implementations {
                 HashAlgorithm::Ripemd320 => Some(Box::new(Ripemd320Wrapper { })),
                 HashAlgorithm::Whirlpool => Some(Box::new(WhirlpoolWrapper { })),
                 HashAlgorithm::Md2 => Some(Box::new(Md2Wrapper {})),
+                HashAlgorithm::Md6128 => Some(Box::new(Md6128Wrapper {})),
+                HashAlgorithm::Md6256 => Some(Box::new(Md6256Wrapper {})),
+                HashAlgorithm::Md6512 => Some(Box::new(Md6512Wrapper {})),
             }
         }
     }
@@ -235,6 +244,45 @@ pub mod implementations {
         }
     }
 
+    mod md6128 {
+        use crate::HashEncoder;
+        use crate::algorithms::implementations::Md6128Wrapper;
+
+        impl HashEncoder for Md6128Wrapper {
+            fn encode(&self, input: &String) -> String {
+                let mut result = [0; 16];
+                md6::hash(128, input.as_bytes(), &mut result).unwrap();
+                result.iter().map(|i|format!("{:02x}", i)).collect()
+            }
+        }
+    }
+
+    mod md6256 {
+        use crate::HashEncoder;
+        use crate::algorithms::implementations::Md6256Wrapper;
+
+        impl HashEncoder for Md6256Wrapper {
+            fn encode(&self, input: &String) -> String {
+                let mut result = [0; 32];
+                md6::hash(256, input.as_bytes(), &mut result).unwrap();
+                result.iter().map(|i|format!("{:02x}", i)).collect()
+            }
+        }
+    }
+
+    mod md6512 {
+        use crate::HashEncoder;
+        use crate::algorithms::implementations::Md6512Wrapper;
+
+        impl HashEncoder for Md6512Wrapper {
+            fn encode(&self, input: &String) -> String {
+                let mut result = [0; 64];
+                md6::hash(512, input.as_bytes(), &mut result).unwrap();
+                result.iter().map(|i|format!("{:02x}", i)).collect()
+            }
+        }
+    }
+
     impl SymetricEncoder for DesWrapper {        
         fn encode(&self, _key: &String, _input: &String) -> String { 
             todo!() 
@@ -305,6 +353,9 @@ mod tests {
         hash_ripemd160: HashAlgorithm::Ripemd160,
         hash_ripemd320: HashAlgorithm::Ripemd320,
         hash_whirlpool: HashAlgorithm::Whirlpool,
+        hash_md6128: HashAlgorithm::Md6128,
+        hash_md6256: HashAlgorithm::Md6256,
+        hash_md6512: HashAlgorithm::Md6512,
     }
 
     symetric_encoder_tests! {
@@ -323,6 +374,9 @@ mod tests {
         ripemd160: (HashAlgorithm::Ripemd160, "7f772647d88750add82d8e1a7a3e5c0902a346a3"),
         ripemd320: (HashAlgorithm::Ripemd320, "f1c1c231d301abcf2d7daae0269ff3e7bc68e623ad723aa068d316b056d26b7d1bb6f0cc0f28336d"),
         whirlpool: (HashAlgorithm::Whirlpool, "bb4f1451ec1b8326643d25d74547591619cb01dd1f104d729a13494cbd95382d3526b00a2d3fdf448e1e4b39887c54fe2aea9767872b58ed361eb3a12075c5b5"),
+        md6128: (HashAlgorithm::Md6128, "a225e8c75da7da319af6335e7642d473"),
+        md6256: (HashAlgorithm::Md6256, "cd270c6cc54460a1a47d91107bf5001a01df564b37468fc668131aca55c88887"),
+        md6512: (HashAlgorithm::Md6512, "39200e5197b11a1229f2df7d2e453c3b4d8a8d2238b5c83c1d89077be85e95616d80f2ab1b557992d7a6ac2232089fdcb271a0d28d8e099960d8b216c81d9ad2"),
     }
 
     #[test]
