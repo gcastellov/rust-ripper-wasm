@@ -70,6 +70,7 @@ mem.then(m => {
         let mutex = new Mutex();
         let dictionaryManager = new j.DictionaryManager();
         let ripper = null;
+        let manualDictionarySelection = [];
 
         const getSelectedAlgorithm = () => {
             const algorithms = Array.from(rbAlgorithms);
@@ -204,7 +205,7 @@ mem.then(m => {
 
         const updateDictionarySelection = async () => {
             const release = await mutex.acquire();
-            const selDictionaries = getSelectedDictionaries();
+            let selDictionaries = getSelectedDictionaries();
             var headers = new Headers();
             const promises = selDictionaries
                 .filter(dictionary => !dictionaryManager.has_dictionary(dictionary))
@@ -221,10 +222,92 @@ mem.then(m => {
 
             await Promise.all(promises);
 
+            if (manualDictionarySelection) {
+                selDictionaries = selDictionaries.concat(manualDictionarySelection);
+            }
+
             dictionaryManager.load_dictionaries(selDictionaries);
             txtWordListCount.value = dictionaryManager.get_word_list_count();
             release();
         };
+
+        const createManualDictionaryEntry = (file) => {
+            const dictionaryList = document.getElementById('dictionary-list');
+            const dictionaryEntry = document.createElement('li');
+            dictionaryEntry.className = 'dictionary-entry'
+            const dictionaryName = document.createElement('span');
+            dictionaryName.innerHTML = file.name;
+            const btnRemove = document.createElement('a');
+            btnRemove.setAttribute('href', '#');            
+            btnRemove.innerHTML = 'x';            
+            dictionaryEntry.appendChild(dictionaryName);
+            dictionaryEntry.appendChild(btnRemove);
+            dictionaryList.appendChild(dictionaryEntry);
+            btnRemove.addEventListener('click', async (e) => {
+                const index = manualDictionarySelection.indexOf(dictionaryEntry.innerHTML);
+                manualDictionarySelection.splice(index, 1);
+                dictionaryList.removeChild(dictionaryEntry);
+                if (manualDictionarySelection.length === 0) {
+                    const separator = document.getElementsByClassName('separator')[0];
+                    dictionaryList.removeChild(separator);
+                }
+
+                await updateDictionarySelection();
+            });
+        };
+
+        const createDictionaryEntrySeparator = () => {
+            const dictionaryEntry = document.createElement('li');
+            dictionaryEntry.className = 'separator';
+            const separator = document.createElement('hr');
+            dictionaryEntry.appendChild(separator);
+            document.getElementById('dictionary-list').appendChild(dictionaryEntry);
+        };
+
+        document.querySelector("#file-input").addEventListener('change', (e) => {
+            let all_files = e.target.files;
+            if(all_files.length == 0) {
+                alert('Error : No file selected');
+                return;
+            }
+        
+            let file = all_files[0];
+            let allowed_types = [ 'text/plain' ];
+            if(allowed_types.indexOf(file.type) == -1) {
+                alert('Error : Incorrect file type');
+                return;
+            }
+
+            let max_size_allowed = 100*1024*1024
+            if(file.size > max_size_allowed) {
+                alert('Error : Exceeded size 100MB');
+                return;
+            }
+        
+            let reader = new FileReader();
+        
+            reader.addEventListener('load', async (e) => {
+                if (manualDictionarySelection.indexOf(file.name) == -1) {
+                    if (manualDictionarySelection.length == 0) {
+                        createDictionaryEntrySeparator();
+                    }
+                    createManualDictionaryEntry(file);
+                    manualDictionarySelection.push(file.name);
+                }
+                if (!dictionaryManager.has_dictionary(file.name)) {
+                    let text = e.target.result;
+                    dictionaryManager.add_dictionary(file.name, text);
+                }
+    
+                await updateDictionarySelection();
+            });
+        
+            reader.addEventListener('error', () => {
+                alert('Error : Failed to read file');
+            });
+        
+            reader.readAsText(file);
+        });
 
         await updateDictionarySelection();
 

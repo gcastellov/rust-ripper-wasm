@@ -6,3 +6,16 @@ body {
   float: right;
   padding: 10pt 0 10pt 0;
 }
+
+#file-input {
+  display: none;
+}
+
+.separator {
+  margin-top: 10pt;
+  margin-bottom: 10pt;
+}
+
+.dictionary-entry > a {  
+  float: right;
+}

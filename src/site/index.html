@@ -78,7 +78,7 @@
                           Choose dictionaries to increase your chances
                         </p>
                         <div class="dictionaries">
-                            <ul>
+                            <ul id="dictionary-list">
                               <li>
                                 <input type="checkbox" id="ckEnglish" name="ckDictionary" value="english.txt" checked="true"></input>
                                 <a for="ckEnglish" target="_blank" href="./assets/english.txt">English</a>
@@ -122,6 +122,8 @@
                         <button type="button" name="btnAll" id="btnAll" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
                           Select all
                         </button>
+                        <label for="file-input" id="file-input-label" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">Use yours</label>
+                        <input type="file" id="file-input" accept="text/plain" />
                       </div>
                   </div>
               </div>
