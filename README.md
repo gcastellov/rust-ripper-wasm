@@ -64,6 +64,10 @@ Run
 # docker run -p 8080:80 rust-ripper-wasm
 ```
 
+## Stage environment
+The application is being deployed at
+[Stage](http://rust-ripper-wasm.azurewebsites.net)
+
 ## License
 This project is licensed under the terms of the MIT license. 
 Check the [LICENSE](LICENSE.md) file out for license rights and limitations.
