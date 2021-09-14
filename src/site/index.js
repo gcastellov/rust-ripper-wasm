@@ -76,9 +76,13 @@ mem.then(m => {
                     if (self.hash == null) {
                         self.hash = new j.HashRipper(dictionaryManager);
                     }
-                    self.hash.set_algorithm(algorithm);                    
                     self.current = self.hash;
                 }
+                
+                if (j.HashRipper.prototype.isPrototypeOf(self.current)) {
+                    self.hash.set_algorithm(algorithm);                    
+                }
+
                 return self.current;
             },
         };
