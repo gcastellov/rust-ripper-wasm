@@ -61,6 +61,28 @@ const debounce = (callback, delay) => {
 mem.then(m => {
     js.then(async j => {
 
+        let ripperCache = {
+            hash: null,
+            lucky: null,
+            current: null,
+            getInstance(algorithm) {
+                let self = this;
+                if (algorithm === "100" && (self.current == null || j.HashRipper.prototype.isPrototypeOf(self.current))) {                    
+                    if (self.lucky == null) {
+                        self.lucky = new j.LuckyRipper(dictionaryManager);
+                    }
+                    self.current = self.lucky;
+                } else if (algorithm !== "100" && (self.current == null || j.LuckyRipper.prototype.isPrototypeOf(self.current))) {
+                    if (self.hash == null) {
+                        self.hash = new j.HashRipper(dictionaryManager);
+                    }
+                    self.hash.set_algorithm(algorithm);                    
+                    self.current = self.hash;
+                }
+                return self.current;
+            },
+        };
+
         const ckDictionaries = document.getElementsByName(elements.CK_DICTIONARY);
         const rbAlgorithms = document.getElementsByName(elements.RB_ALGORITHM);
         const txtWordListCount = document.getElementById(elements.TXT_WORD_COUNT);
@@ -154,7 +176,6 @@ mem.then(m => {
 
         const enableDisableExecution = async (e) => {
             const pwd = txtPassword.value;
-            console.log(pwd);
             if (pwd) {
                 btnRun.removeAttribute(DISABLED_ATTR);
                 btnRun.classList.replace("cursor-not-allowed", "hover:bg-indigo-700");
@@ -197,16 +218,7 @@ mem.then(m => {
                 isCancelationRequested = false;
                 const pwd = txtPassword.value;
                 const algorithm = getSelectedAlgorithm();
-
-                if (algorithm == "100") {
-                    let lucky = new j.LuckyRipper(dictionaryManager);
-                    ripper = lucky;                    
-                } else {
-                    let hasher = new j.HashRipper(dictionaryManager);
-                    hasher.set_algorithm(algorithm);
-                    ripper = hasher;
-                }
-
+                ripper = ripperCache.getInstance(algorithm);
                 ripper.set_input(pwd);
                 ripper.start_matching();
                 resolve();
