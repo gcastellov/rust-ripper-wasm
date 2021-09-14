@@ -21,7 +21,8 @@ const elements = {
 
 const events = {
     CLICK: "click",
-    CHANGE: "change",  
+    CHANGE: "change",
+    KEYUP: "keyup",
 };
 
 const dictionaries = {
@@ -66,6 +67,7 @@ mem.then(m => {
         const txtPwdOutput = document.getElementById(elements.TXT_OUTPUT);
         const txtElapsedTime = document.getElementById(elements.TXT_ELAPSED_TIME);
         const txtLastWord = document.getElementById(elements.TXT_LAST_WORD);
+        const txtPassword = document.getElementById(elements.TXT_INPUT);
         
         let mutex = new Mutex();
         let dictionaryManager = new j.DictionaryManager();
@@ -121,16 +123,49 @@ mem.then(m => {
             await updateDictionarySelection();
         };
 
-        const cancel = async () => {
+        const enableCancel = () => {
+            return new Promise((resolve, reject) => { 
+                btnCancel.removeAttribute(DISABLED_ATTR);
+                btnCancel.classList.replace("cursor-not-allowed", "hover:bg-gray-500");
+                resolve();
+            });
+        };
+
+        const disableCancel = () => {
+            return new Promise((resolve, reject) => { 
+                btnCancel.setAttribute(DISABLED_ATTR, "true");
+                btnCancel.classList.replace("hover:bg-gray-500", "cursor-not-allowed");
+                resolve();
+            });
+        };
+
+        const cancel = () => {
             isCancelationRequested = true;
-            await unblock();
+            unblock().then(disableCancel());
         };
 
         const execute = () => {
             clean()
                 .then(block())
+                .then(enableCancel())
                 .then(run())
                 .then(requestAnimationFrame(loop));
+        };
+
+        const enableDisableExecution = async (e) => {
+            const pwd = txtPassword.value;
+            console.log(pwd);
+            if (pwd) {
+                btnRun.removeAttribute(DISABLED_ATTR);
+                btnRun.classList.replace("cursor-not-allowed", "hover:bg-indigo-700");
+                btnRun.classList.replace("bg-indigo-400", "bg-indigo-600");
+            } else {
+                btnRun.setAttribute(DISABLED_ATTR, "true");
+                btnRun.classList.replace("hover:bg-indigo-700", "cursor-not-allowed");
+                btnRun.classList.replace("bg-indigo-600", "bg-indigo-400");
+
+                await disableCancel();
+            }
         };
 
         const unblock = () => {
@@ -155,12 +190,12 @@ mem.then(m => {
                 btnAll.classList.replace("hover:bg-gray-500", "cursor-not-allowed");
                 resolve();
             });
-        }
+        };
 
         const run = () => {
             return new Promise((resolve, reject) => {
                 isCancelationRequested = false;
-                const pwd = document.getElementById(elements.TXT_INPUT).value;
+                const pwd = txtPassword.value;
                 const algorithm = getSelectedAlgorithm();
 
                 if (algorithm == "100") {
@@ -310,10 +345,13 @@ mem.then(m => {
         });
 
         await updateDictionarySelection();
+        await enableDisableExecution();
 
         btnRun.addEventListener(events.CLICK, execute);
         btnAll.addEventListener(events.CLICK, selectAll);
         btnCancel.addEventListener(events.CLICK, cancel);
+        txtPassword.addEventListener(events.CHANGE, enableDisableExecution);
+        txtPassword.addEventListener(events.KEYUP, enableDisableExecution);
         rbAlgorithms.forEach(element => element.addEventListener(events.CHANGE, clean));
         ckDictionaries.forEach(element => element.addEventListener(events.CHANGE, debounce(updateDictionarySelection, 2000)));
     });
