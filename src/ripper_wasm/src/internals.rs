@@ -133,12 +133,12 @@ pub mod core {
     impl Iterator for Dictionary {
         type Item = String;
         fn next(&mut self) -> Option<Self::Item> { 
-            if self.index < self.word_list.len() {
-                let slice = &self.word_list[self.index..self.index+1];            
-                self.index += 1;
-                Some(slice[0].clone())
-            } else {
-                None
+            match self.word_list.get(self.index) {
+                Some(word) => {
+                    self.index += 1;
+                    Some(word.clone())
+                },
+                _ => None
             }
         }
     }
@@ -219,21 +219,26 @@ pub mod core {
         #[test]
         fn get_chunk() {
             const CHUNK_SIZE: usize = 50;
+            const CONTENT_LENGTH: usize = 1000;
 
-            let words: Vec<String> = (0..100)
+            let words: Vec<String> = (0..1000)
                 .map(|num|num.to_string())
                 .collect();
 
             let mut dictionary = Dictionary::new(words.as_slice());
+            let mut content: Vec<String> = Vec::default();
             let mut rounds: usize = 0;
             
-            while let Some(_) = dictionary.get_chunk(CHUNK_SIZE) {
+            while let Some(chunk) = dictionary.get_chunk(CHUNK_SIZE) {
+                let mut chunk_vector: Vec<String> = chunk.iter().map(|word|word.clone()).collect();
+                content.append(&mut chunk_vector);
                 dictionary.forward(CHUNK_SIZE);
                 rounds += 1;
             }
 
-            assert_eq!(2, rounds);
-            assert_ne!(0, dictionary.get_index());
+            assert_eq!(20, rounds);
+            assert_eq!(CONTENT_LENGTH, dictionary.get_index());
+            assert_eq!(words, content);
         }
 
         #[test]

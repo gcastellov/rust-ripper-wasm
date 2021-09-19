@@ -54,21 +54,21 @@ pub mod implementations {
     struct WhirlpoolWrapper {}
     struct Md2Wrapper {}
 
+    static ALGORITHMS: [HashAlgorithm; 10] = [
+        HashAlgorithm::Md5,
+        HashAlgorithm::Base64,
+        HashAlgorithm::Sha256,
+        HashAlgorithm::Md4,
+        HashAlgorithm::Sha1,
+        HashAlgorithm::Ripemd128,
+        HashAlgorithm::Ripemd320,
+        HashAlgorithm::Whirlpool,
+        HashAlgorithm::Md2,
+        HashAlgorithm::Ripemd160,
+    ];
+
     impl HashAlgorithm {
         pub fn iterator() -> Iter<'static, HashAlgorithm> {
-            static ALGORITHMS: [HashAlgorithm; 10] = [
-                HashAlgorithm::Md5,
-                HashAlgorithm::Base64,
-                HashAlgorithm::Sha256,
-                HashAlgorithm::Md4,
-                HashAlgorithm::Sha1,
-                HashAlgorithm::Ripemd128,
-                HashAlgorithm::Ripemd320,
-                HashAlgorithm::Whirlpool,
-                HashAlgorithm::Md2,
-                HashAlgorithm::Ripemd160,
-            ];
-
             ALGORITHMS.iter()
         }
     }

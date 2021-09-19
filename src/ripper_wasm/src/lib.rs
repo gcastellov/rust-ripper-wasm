@@ -109,7 +109,7 @@ mod tests {
         let mut cracker: LuckyRipper = LuckyRipper::new(&mut dictionary_manager);
         cracker.set_input("daa136908bd66810f306b788c644f470");
         cracker.start_matching();
-    
+   
         while cracker.is_checking() {
             cracker.check(500f64);
         }
@@ -168,5 +168,39 @@ mod tests {
         let ripper = HashRipper::new(&mut DictionaryManager::default());
         let actual = ripper.get_last_word();
         assert_eq!(actual, String::default());
+    }
+
+    #[wasm_bindgen_test]
+    fn get_progress_until_end() {
+        const WORD_LIMIT: usize = 10000;
+        let mut output: Vec<usize> = Vec::default();
+        let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
+        let words: String = (0..WORD_LIMIT)
+            .map(|num|num.to_string() + "\n")
+            .collect();
+
+        let mut dictionary_manager = DictionaryManager::default();
+        dictionary_manager.add_dictionary(ENGLISH_KEY, words.as_str());
+        dictionary_manager.load_dictionaries(dictionary_lists);
+
+        let mut cracker: LuckyRipper = LuckyRipper::new(&mut dictionary_manager);
+        cracker.set_input("noway");
+        cracker.start_matching();
+    
+        while cracker.is_checking() {
+            cracker.check(500f64);
+            let progress = cracker.get_progress();
+            output.push(progress);
+        }
+
+        let mut former: usize = 0;
+        println!("{:?}", output);
+        for value in output.clone() {
+            debug_assert!(value >= former, "Last value was greater: {} - {}", former, value);
+            former = value;
+        }
+
+        let last: usize = output.into_iter().last().unwrap().clone();
+        debug_assert_eq!(WORD_LIMIT*10, last, "Last value is not the expected: {}", last);
     }
 }
