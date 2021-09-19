@@ -127,4 +127,8 @@ impl LuckyRipper {
     pub fn is_checking(&self) -> bool {
         self.inner.word_match.is_none() && !self.has_ended
     }
+
+    pub fn set_dictionary(&mut self, dictionary_manager: &mut DictionaryManager) {
+        self.inner = Inner::new(dictionary_manager.make());
+    }
 }

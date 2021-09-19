@@ -72,6 +72,10 @@ impl HashRipper {
     pub fn is_checking(&self) -> bool {
         self.inner.word_match.is_none() && self.get_progress() < self.inner.dictionary.len()
     }
+
+    pub fn set_dictionary(&mut self, dictionary_manager: &mut DictionaryManager) {
+        self.inner = Inner::new(dictionary_manager.make());
+    }
 }
 
 impl HashRipper {

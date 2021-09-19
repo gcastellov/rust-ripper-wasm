@@ -67,20 +67,23 @@ mem.then(m => {
             current: null,
             getInstance(algorithm) {
                 let self = this;
+                let newInstance = false;
                 if (algorithm === "100" && (self.current == null || j.HashRipper.prototype.isPrototypeOf(self.current))) {                    
                     if (self.lucky == null) {
                         self.lucky = new j.LuckyRipper(dictionaryManager);
+                        newInstance = true;
                     }
                     self.current = self.lucky;
                 } else if (algorithm !== "100" && (self.current == null || j.LuckyRipper.prototype.isPrototypeOf(self.current))) {
                     if (self.hash == null) {
                         self.hash = new j.HashRipper(dictionaryManager);
+                        newInstance = true;
                     }
                     self.current = self.hash;
-                }
+                }                
                 
-                if (j.HashRipper.prototype.isPrototypeOf(self.current)) {
-                    self.hash.set_algorithm(algorithm);                    
+                if (!newInstance) {
+                    self.current.set_dictionary(dictionaryManager);
                 }
 
                 return self.current;
@@ -223,6 +226,9 @@ mem.then(m => {
                 const pwd = txtPassword.value;
                 const algorithm = getSelectedAlgorithm();
                 ripper = ripperCache.getInstance(algorithm);
+                if (j.HashRipper.prototype.isPrototypeOf(ripper)) {
+                    ripper.set_algorithm(algorithm);
+                }
                 ripper.set_input(pwd);
                 ripper.start_matching();
                 resolve();
