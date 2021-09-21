@@ -19,3 +19,8 @@ body {
 .dictionary-entry > a {  
   float: right;
 }
+
+nav {
+  margin-top: 5t;
+  margin-bottom: 5pt;
+}
