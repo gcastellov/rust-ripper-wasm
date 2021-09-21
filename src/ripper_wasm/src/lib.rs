@@ -44,7 +44,8 @@ mod tests {
                 dictionary_manager.add_dictionary(ENGLISH_KEY, WORD_LIST);
                 dictionary_manager.load_dictionaries(vec![ JsValue::from_str(ENGLISH_KEY) ]);
 
-                let mut cracker: HashRipper = HashRipper::new(&mut dictionary_manager);
+                let mut cracker: HashRipper = HashRipper::new();
+                cracker.set_dictionary(&mut dictionary_manager);
                 cracker.set_algorithm(algorithm);
                 cracker.set_input(input);
                 cracker.start_matching();
@@ -80,7 +81,8 @@ mod tests {
         dictionary_manager.add_dictionary(ENGLISH_KEY, words.as_str());
         dictionary_manager.load_dictionaries(dictionary_lists);
         
-        let mut cracker: HashRipper = HashRipper::new(&mut dictionary_manager);
+        let mut cracker: HashRipper = HashRipper::new();
+        cracker.set_dictionary(&mut dictionary_manager);
         cracker.set_algorithm(HashAlgorithm::Md5);
         cracker.set_input("e57023ed682d83a41d25acb650c877da");
         cracker.start_matching();
@@ -106,7 +108,8 @@ mod tests {
         dictionary_manager.add_dictionary(ENGLISH_KEY, words.as_str());
         dictionary_manager.load_dictionaries(dictionary_lists);
 
-        let mut cracker: LuckyRipper = LuckyRipper::new(&mut dictionary_manager);
+        let mut cracker: LuckyRipper = LuckyRipper::new();
+        cracker.set_dictionary(&mut dictionary_manager);
         cracker.set_input("daa136908bd66810f306b788c644f470");
         cracker.start_matching();
    
@@ -165,7 +168,7 @@ mod tests {
 
     #[test]
     fn get_last_word_when_empty() {
-        let ripper = HashRipper::new(&mut DictionaryManager::default());
+        let ripper = HashRipper::new();
         let actual = ripper.get_last_word();
         assert_eq!(actual, String::default());
     }
@@ -183,7 +186,8 @@ mod tests {
         dictionary_manager.add_dictionary(ENGLISH_KEY, words.as_str());
         dictionary_manager.load_dictionaries(dictionary_lists);
 
-        let mut cracker: LuckyRipper = LuckyRipper::new(&mut dictionary_manager);
+        let mut cracker: LuckyRipper = LuckyRipper::new();
+        cracker.set_dictionary(&mut dictionary_manager);
         cracker.set_input("noway");
         cracker.start_matching();
     

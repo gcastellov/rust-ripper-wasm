@@ -1,3 +1,4 @@
+use crate::internals::core::Dictionary;
 use crate::rippers::CHUNK_SIZE;
 use crate::DictionaryManager;
 use crate::HashEncoderFactory;
@@ -17,9 +18,9 @@ pub struct HashRipper {
 impl HashRipper {
     
     #[wasm_bindgen(constructor)]
-    pub fn new(dictionary_manager: &mut DictionaryManager) -> Self {
+    pub fn new() -> Self {
         HashRipper {
-            inner: Inner::new(dictionary_manager.make()),
+            inner: Inner::new(Box::new(Dictionary::default())),
             algorithm: None,
             encoder: None,
         }
@@ -74,7 +75,7 @@ impl HashRipper {
     }
 
     pub fn set_dictionary(&mut self, dictionary_manager: &mut DictionaryManager) {
-        self.inner = Inner::new(dictionary_manager.make());
+        self.inner.dictionary = dictionary_manager.make();
     }
 }
 

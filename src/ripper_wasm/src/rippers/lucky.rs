@@ -1,4 +1,5 @@
 use crate::DictionaryManager;
+use crate::internals::core::Dictionary;
 use crate::rippers::hashing::HashRipper;
 use crate::HashEncoder;
 use crate::HashAlgorithm;
@@ -57,9 +58,9 @@ pub struct LuckyRipper {
 impl LuckyRipper {
     
     #[wasm_bindgen(constructor)]
-    pub fn new(dictionary_manager: &mut DictionaryManager) -> Self {
+    pub fn new() -> Self {
         LuckyRipper {
-            inner: Inner::new(dictionary_manager.make()),
+            inner: Inner::new(Box::new(Dictionary::default())),
             algorithm_list: AlgorithmList::default(),
             encoder: None,
             input: String::default(),
@@ -129,6 +130,6 @@ impl LuckyRipper {
     }
 
     pub fn set_dictionary(&mut self, dictionary_manager: &mut DictionaryManager) {
-        self.inner = Inner::new(dictionary_manager.make());
+        self.inner.dictionary = dictionary_manager.make();
     }
 }
