@@ -103,7 +103,10 @@ impl LuckyRipper {
     pub fn check(&mut self, milliseconds: f64) -> bool {
         if self.inner.word_match.is_none() && self.inner.dictionary.get_index() == 0 && !self.algorithm_list.is_empty() {
             if let Some(algorithm) = self.algorithm_list.pop() {
-                self.encoder = algorithm.get_encoder();
+                self.encoder = match algorithm.get_encoder() {
+                    Some((_, encoder)) => Some(encoder),
+                    _ => None
+                };
                 let original_input = self.input.clone();
                 self.inner.input = match algorithm {
                     HashAlgorithm::Base64 => original_input,

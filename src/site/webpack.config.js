@@ -9,7 +9,7 @@ module.exports = () => {
   console.log(`Building version: ${dotenv.parsed.VERSION}`);
 
   return {
-    entry: "./index.js",
+    entry: [ "./js/index.js", "./js/cipher.js" ],
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "bundle.js",

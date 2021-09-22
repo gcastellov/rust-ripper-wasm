@@ -26,7 +26,7 @@ pub mod implementations {
     }
 
     pub trait HashEncoderFactory {
-        fn get_encoder(&self) -> Option<Box<dyn HashEncoder>>;
+        fn get_encoder(&self) -> Option<(u8, Box<dyn HashEncoder>)>;
     }
 
     pub trait SymetricEncoderFactory {
@@ -74,18 +74,18 @@ pub mod implementations {
     }
 
     impl HashEncoderFactory for HashAlgorithm {
-        fn get_encoder(&self) -> Option<Box<dyn HashEncoder>> { 
+        fn get_encoder(&self) -> Option<(u8, Box<dyn HashEncoder>)> { 
             match self {
-                HashAlgorithm::Md5 => Some(Box::new(Md5Wrapper { })),
-                HashAlgorithm::Sha256 => Some(Box::new(Sha256Wrapper { })),
-                HashAlgorithm::Base64 => Some(Box::new(Base64Wrapper { })),
-                HashAlgorithm::Md4 => Some(Box::new(Md4Wrapper { })),
-                HashAlgorithm::Sha1 => Some(Box::new(Sha1Wrapper { })),
-                HashAlgorithm::Ripemd128 => Some(Box::new(Ripemd128Wrapper { })),
-                HashAlgorithm::Ripemd160 => Some(Box::new(Ripemd160Wrapper { })),
-                HashAlgorithm::Ripemd320 => Some(Box::new(Ripemd320Wrapper { })),
-                HashAlgorithm::Whirlpool => Some(Box::new(WhirlpoolWrapper { })),
-                HashAlgorithm::Md2 => Some(Box::new(Md2Wrapper {})),
+                HashAlgorithm::Md5 => Some((HashAlgorithm::Md5 as u8, Box::new(Md5Wrapper { }))),
+                HashAlgorithm::Sha256 => Some((HashAlgorithm::Sha256 as u8, Box::new(Sha256Wrapper { }))),
+                HashAlgorithm::Base64 => Some((HashAlgorithm::Base64 as u8, Box::new(Base64Wrapper { }))),
+                HashAlgorithm::Md4 => Some((HashAlgorithm::Md4 as u8, Box::new(Md4Wrapper { }))),
+                HashAlgorithm::Sha1 => Some((HashAlgorithm::Sha1 as u8, Box::new(Sha1Wrapper { }))),
+                HashAlgorithm::Ripemd128 => Some((HashAlgorithm::Ripemd128 as u8, Box::new(Ripemd128Wrapper { }))),
+                HashAlgorithm::Ripemd160 => Some((HashAlgorithm::Ripemd160 as u8, Box::new(Ripemd160Wrapper { }))),
+                HashAlgorithm::Ripemd320 => Some((HashAlgorithm::Ripemd320 as u8, Box::new(Ripemd320Wrapper { }))),
+                HashAlgorithm::Whirlpool => Some((HashAlgorithm::Whirlpool as u8, Box::new(WhirlpoolWrapper { }))),
+                HashAlgorithm::Md2 => Some((HashAlgorithm::Md2 as u8, Box::new(Md2Wrapper {}))),
             }
         }
     }
@@ -260,7 +260,7 @@ mod tests {
             fn $name() {
                 let input: String = String::from("Hello world!");
                 let (algorithm, expected) = $value;
-                let encoder: Box<dyn HashEncoder> = algorithm.get_encoder().unwrap();
+                let (_, encoder): (u8, Box<dyn HashEncoder>) = algorithm.get_encoder().unwrap();
                 let actual = encoder.encode(&input);
                 assert_eq!(actual, expected);
             }
@@ -274,7 +274,7 @@ mod tests {
             #[test]
             fn $name() {
                 let input = $value;
-                let encoder: Option<Box<dyn HashEncoder>> = input.get_encoder();
+                let encoder: Option<(u8, Box<dyn HashEncoder>)> = input.get_encoder();
                 assert!(encoder.is_some());
             }
         )*

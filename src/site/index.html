@@ -6,16 +6,15 @@
         <link href="./style.css" rel="stylesheet">
     </head>
     <body>
-
         <!-- Navbar goes here -->
-        <nav class="bg-white shadow sm:rounded-md">
+        <nav class="bg-white shadow sm:rounded-md" id="nav-index">
           <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between">
               <div class="flex space-x-7">
                 <!-- Primary Navbar items -->
                 <div class="hidden md:flex items-center space-x-1">
-                  <a href="index.html" class="py-4 px-2 text-indigo-500 border-b-4 border-indigo-500 font-semibold ">Decrypt</a>
-                  <a href="encrypt.html" class="py-4 px-2 text-gray-500 font-semibold hover:text-indigo-500 transition duration-300">Encrypt</a>
+                  <a href="index.html" class="py-4 px-2 text-indigo-500 border-b-4 border-indigo-500 font-semibold ">Decipher</a>
+                  <a href="cipher.html" class="py-4 px-2 text-gray-500 font-semibold hover:text-indigo-500 transition duration-300">Cipher</a>
                 </div>
               </div>
               <!-- Mobile menu button -->
@@ -28,8 +27,7 @@
                   stroke-linejoin="round"
                   stroke-width="2"
                   viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
+                  stroke="currentColor">
                   <path d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
               </button>
@@ -39,14 +37,13 @@
           <!-- mobile menu -->
           <div class="hidden mobile-menu">
             <ul class="">
-              <li class="active"><a href="index.html" class="block text-sm px-2 py-4 text-white bg-indigo-500 font-semibold">Decrypt</a></li>
-              <li><a href="encrypt.html" class="block text-sm px-2 py-4 hover:bg-indigo-500 transition duration-300">Encrypt</a></li>
+              <li class="active"><a href="index.html" class="block text-sm px-2 py-4 text-white bg-indigo-500 font-semibold">Decipher</a></li>
+              <li><a href="cipher.html" class="block text-sm px-2 py-4 hover:bg-indigo-500 transition duration-300">Cipher</a></li>
             </ul>
           </div>
           <script>
             const btn = document.querySelector("button.mobile-menu-button");
             const menu = document.querySelector(".mobile-menu");
-
             btn.addEventListener("click", () => {
               menu.classList.toggle("hidden");
             });

@@ -15,6 +15,42 @@ pub struct HashRipper {
 }
 
 #[wasm_bindgen]
+pub struct HashCipher {
+    word: Option<String>,
+    encoders: Vec<(u8, Box<dyn HashEncoder>)>
+}
+
+#[wasm_bindgen]
+impl HashCipher {
+
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        HashCipher {
+            word: None,
+            encoders: HashAlgorithm::iterator().map(|a|a.get_encoder().unwrap()).collect()
+        }
+    }
+
+    pub fn set_word(&mut self, word: String) {
+        self.word = match word.is_empty() {
+            false => Some(word),
+            _ => None
+        };
+    }
+
+    pub fn get_ciphers(self) -> Vec<JsValue> {
+        if let Some(word) = self.word {
+            self.encoders
+                .iter()
+                .map(|(id, encoder)|JsValue::from_str((id.to_string() + "|" + &encoder.encode(&word)).as_str()))
+                .collect()
+        } else {
+            Vec::default()
+        }
+    }
+}
+
+#[wasm_bindgen]
 impl HashRipper {
     
     #[wasm_bindgen(constructor)]
@@ -49,8 +85,11 @@ impl HashRipper {
         }
 
         self.inner.start_ticking();
-        let algorithm = self.algorithm.as_ref().unwrap();
-        self.encoder = algorithm.get_encoder();
+        let algorithm = self.algorithm.as_ref().unwrap();        
+        self.encoder = match algorithm.get_encoder() {
+            Some((_, encoder)) => Some(encoder),
+            _ => None
+        };
     }
 
     pub fn check(&mut self, milliseconds: f64) -> bool {
