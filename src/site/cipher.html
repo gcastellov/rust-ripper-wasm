@@ -51,38 +51,40 @@
             </script>
         </nav>
 
-        <div class="mt-5 md:mt-0 md:col-span-2">
-            <div class="shadow sm:rounded-md sm:overflow-hidden">
-                <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-                  <div class="grid grid-cols-3 gap-6">
-                    <div class="col-span-3 sm:col-span-2">
-                      <label for="company_website" class="block text-sm font-medium text-gray-700">
-                        Word to encrypt
-                      </label>
-                      <div class="mt-1 flex rounded-md shadow-sm">
-                        <input type="text" name="txtInput" id="txtInput" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300" placeholder="type your word here"></input>
+        <div>
+          <div class="md:grid md:grid-cols-3 md:gap-6">
+            <div class="mt-5 md:mt-0 col-span-3 lg:col-span-1">
+                <div class="shadow sm:rounded-md sm:overflow-hidden">
+                    <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                      <div class="grid grid-cols-3 gap-6">
+                        <div class="col-span-3 sm:col-span-3">
+                          <label for="company_website" class="block text-sm font-medium text-gray-700">
+                            Word to cipher
+                          </label>
+                          <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="text" name="txtInput" id="txtInput" class="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300" placeholder="type your word here"></input>
+                          </div>
+                        </div>
                       </div>
                     </div>
+                    <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                      <button type="button" name="btnRun" id="btnRun" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Run
+                      </button>
+                    </div>
+                  </div>
+            </div>
+
+            <div class="mt-5 md:mt-0 col-span-3 lg:col-span-2 hidden" id="results">
+              <div class="shadow sm:rounded-md sm:overflow-hidden" id="results-container">
+                  <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                    <div class="grid grid-cols-5 gap-2" >                      
+                    </div>                
                   </div>
                 </div>
-                <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-                  <button type="button" name="btnRun" id="btnRun" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Run
-                  </button>
-                </div>
-              </div>
-        </div>
-
-        <div class="mt-5 md:mt-0 md:col-span-2 hidden" id="results">
-          <div class="shadow sm:rounded-md sm:overflow-hidden">
-              <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-                <div class="grid grid-cols-2 gap-2" id="results-container">
-                  
-                </div>                
-              </div>
             </div>
+          </div>
         </div>
-
 
 	</body>
   <script charset="utf-8" src="/dist/bundle.js"></script>
