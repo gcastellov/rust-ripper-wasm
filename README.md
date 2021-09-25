@@ -13,7 +13,7 @@ Please, refer to each crate documentation and check its licensing.
 | `md2`       | MD2      | [![crates.io](https://img.shields.io/crates/v/md2.svg)](https://crates.io/crates/md2)      |
 | `md4`       | MD4      | [![crates.io](https://img.shields.io/crates/v/md4.svg)](https://crates.io/crates/md4)      |
 | `md5`       | MD5     | [![crates.io](https://img.shields.io/crates/v/md5.svg)](https://crates.io/crates/md5)     |
-| `sha1`      | SHA-1   | [![crates.io](https://img.shields.io/crates/v/sha1.svg)](https://crates.io/crates/sha-1)   |
+| `sha1`      | SHA-1   | [![crates.io](https://img.shields.io/crates/v/sha-1.svg)](https://crates.io/crates/sha-1)   |
 | `sha256`    | SHA-2 256| [![crates.io](https://img.shields.io/crates/v/sha256.svg)](https://crates.io/crates/sha256)|
 | `base64`    | Base64   | [![crates.io](https://img.shields.io/crates/v/base64.svg)](https://crates.io/crates/base64)|
 |`ripemd128`  | RIPEMD128 | [![crates.io](https://img.shields.io/crates/v/ripemd128.svg)](https://crates.io/crates/ripemd128)|
@@ -23,7 +23,11 @@ Please, refer to each crate documentation and check its licensing.
 
 <br/>
 
-![UI](doc/ui.png)
+![UI Decipher](doc/ui-decipher.png)
+
+<br/>
+
+![UI Cipher](doc/ui-cipher.png)
 
 <br/>
 

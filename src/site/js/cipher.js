@@ -85,6 +85,11 @@ if (nav !== null && nav !== "undefined") {
             };            
 
             btnRun.addEventListener("click", run);            
+            txtInput.addEventListener("keypress", (e) => {
+                if (e.key == "Enter") {
+                    run();
+                }
+            });
         });
     });
 }
