@@ -17,21 +17,25 @@ if (nav !== null && nav !== "undefined") {
                     case "2":
                         return "Base64";
                     case "3":
-                        return "Sha256";
+                        return "Sha-256";
                     case "4":
                         return "Md4";
                     case "5":
                         return "Sha1";
                     case "6":
-                        return "Ripemd128";
+                        return "Ripemd-128";
                     case "7":
-                        return "Ripemd320";
+                        return "Ripemd-320";
                     case "8":
                         return "Whirlpool";
                     case "9":
                         return "Md2";
                     case "10":
-                        return "Ripemd160";
+                        return "Ripemd-160";
+                    case "11":
+                        return "Blake2b-512";
+                    case "12":
+                        return "Blake2s-256";
                     default:
                         return id;
                 }

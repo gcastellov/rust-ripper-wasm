@@ -16,6 +16,8 @@ pub mod implementations {
         Whirlpool = 8,
         Md2 = 9,
         Ripemd160 = 10,
+        Blake2b = 11,
+        Blake2s = 12
     }
 
     #[wasm_bindgen]
@@ -53,8 +55,10 @@ pub mod implementations {
     struct Ripemd320Wrapper {}
     struct WhirlpoolWrapper {}
     struct Md2Wrapper {}
+    struct Blake2bWrapper {}
+    struct Blake2sWrapper {}
 
-    static ALGORITHMS: [HashAlgorithm; 10] = [
+    static ALGORITHMS: [HashAlgorithm; 12] = [
         HashAlgorithm::Md5,
         HashAlgorithm::Base64,
         HashAlgorithm::Sha256,
@@ -65,6 +69,8 @@ pub mod implementations {
         HashAlgorithm::Whirlpool,
         HashAlgorithm::Md2,
         HashAlgorithm::Ripemd160,
+        HashAlgorithm::Blake2b,
+        HashAlgorithm::Blake2s,
     ];
 
     impl HashAlgorithm {
@@ -86,6 +92,8 @@ pub mod implementations {
                 HashAlgorithm::Ripemd320 => Some((HashAlgorithm::Ripemd320 as u8, Box::new(Ripemd320Wrapper { }))),
                 HashAlgorithm::Whirlpool => Some((HashAlgorithm::Whirlpool as u8, Box::new(WhirlpoolWrapper { }))),
                 HashAlgorithm::Md2 => Some((HashAlgorithm::Md2 as u8, Box::new(Md2Wrapper {}))),
+                HashAlgorithm::Blake2b => Some((HashAlgorithm::Blake2b as u8, Box::new(Blake2bWrapper{}))),
+                HashAlgorithm::Blake2s => Some((HashAlgorithm::Blake2s as u8, Box::new(Blake2sWrapper{}))),
             }
         }
     }
@@ -235,6 +243,31 @@ pub mod implementations {
         }
     }
 
+    mod blake2 {
+        use blake2::{Digest, Blake2b, Blake2s};
+        use crate::HashEncoder;
+        use crate::algorithms::implementations::Blake2bWrapper;
+        use crate::algorithms::implementations::Blake2sWrapper;
+
+        impl HashEncoder for Blake2bWrapper {
+            fn encode(&self, input: &String) -> String {
+                let mut hasher = Blake2b::new();
+                hasher.update(input);
+                let result = hasher.finalize();
+                format!("{:x}", result)
+            }
+        }
+
+        impl HashEncoder for Blake2sWrapper {
+            fn encode(&self, input: &String) -> String {
+                let mut hasher = Blake2s::new();
+                hasher.update(input);
+                let result = hasher.finalize();
+                format!("{:x}", result)
+            }
+        }
+    }
+
     impl SymetricEncoder for DesWrapper {        
         fn encode(&self, _key: &String, _input: &String) -> String { 
             todo!() 
@@ -323,6 +356,8 @@ mod tests {
         ripemd160: (HashAlgorithm::Ripemd160, "7f772647d88750add82d8e1a7a3e5c0902a346a3"),
         ripemd320: (HashAlgorithm::Ripemd320, "f1c1c231d301abcf2d7daae0269ff3e7bc68e623ad723aa068d316b056d26b7d1bb6f0cc0f28336d"),
         whirlpool: (HashAlgorithm::Whirlpool, "bb4f1451ec1b8326643d25d74547591619cb01dd1f104d729a13494cbd95382d3526b00a2d3fdf448e1e4b39887c54fe2aea9767872b58ed361eb3a12075c5b5"),
+        blake2b: (HashAlgorithm::Blake2b, "0389abc5ab1e8e170e95aff19d341ecbf88b83a12dd657291ec1254108ea97352c2ff5116902b9fe4021bfe5a6a4372b0f7c9fc2d7dd810c29f85511d1e04c59"),
+        blake2s: (HashAlgorithm::Blake2s, "c63813a8f804abece06213a46acd04a2d738c8e7a58fbf94bfe066a9c7f89197"),
     }
 
     #[test]

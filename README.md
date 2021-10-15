@@ -20,6 +20,8 @@ Please, refer to each crate documentation and check its licensing.
 |`ripemd160`  | RIPEMD160 | [![crates.io](https://img.shields.io/crates/v/ripemd160.svg)](https://crates.io/crates/ripemd160)|
 |`ripemd320`  | RIPEMD320 | [![crates.io](https://img.shields.io/crates/v/ripemd320.svg)](https://crates.io/crates/ripemd320)|
 |`whirlpool`  | WHIRLPOOL | [![crates.io](https://img.shields.io/crates/v/whirlpool.svg)](https://crates.io/crates/whirlpool)|
+|`Blake2b`    | BLAKE2B-512 | [![crates.io](https://img.shields.io/crates/v/blake2.svg)](https://crates.io/crates/blake2)|
+|`Blake2s`    | BLAKE2S-256 | [![crates.io](https://img.shields.io/crates/v/blake2.svg)](https://crates.io/crates/blake2)|
 
 <br/>
 

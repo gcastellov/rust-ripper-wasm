@@ -68,6 +68,8 @@ mod tests {
         match_ripemd160: ("25fc9204b31e219e770f9b973b2f206b4049b732", HashAlgorithm::Ripemd160),
         match_ripemd320: ("667d71946caaadeadd667e040a3f9fdcae361e03b2dd7d7ddfebc9f0d37e58528b37f5274bc03170", HashAlgorithm::Ripemd320),
         match_whirlpool: ("8d0e01d8519e6729aeadc4a30735b972d87907b20233a7241644de2eb3120821fd8e26861e5f9f0d31ad9e5631a6b12c63ead9269ca1a15175366ea75595fd24", HashAlgorithm::Whirlpool),
+        match_blake2b: ("c33f6f72d1315446d2bb87c04463c7a231bb6a14da8660ae6bf837832cc88c26c2a2eba814b1a5154a8beda5a00e615739c0f089b84484a302649869c0c3d620", HashAlgorithm::Blake2b),
+        match_blake2s: ("f63362fbb63b4fa4e36956ea357c404ce4a81e988675a09bfdcb4d0fde1ea3ca", HashAlgorithm::Blake2s),
     }
 
     #[wasm_bindgen_test]
