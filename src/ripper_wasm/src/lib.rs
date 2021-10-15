@@ -207,6 +207,6 @@ mod tests {
         }
 
         let last: usize = output.into_iter().last().unwrap().clone();
-        debug_assert_eq!(WORD_LIMIT*10, last, "Last value is not the expected: {}", last);
+        debug_assert_eq!(WORD_LIMIT*12, last, "Last value is not the expected: {}", last);
     }
 }
