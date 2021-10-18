@@ -70,6 +70,7 @@ mod tests {
         match_whirlpool: ("8d0e01d8519e6729aeadc4a30735b972d87907b20233a7241644de2eb3120821fd8e26861e5f9f0d31ad9e5631a6b12c63ead9269ca1a15175366ea75595fd24", HashAlgorithm::Whirlpool),
         match_blake2b: ("c33f6f72d1315446d2bb87c04463c7a231bb6a14da8660ae6bf837832cc88c26c2a2eba814b1a5154a8beda5a00e615739c0f089b84484a302649869c0c3d620", HashAlgorithm::Blake2b),
         match_blake2s: ("f63362fbb63b4fa4e36956ea357c404ce4a81e988675a09bfdcb4d0fde1ea3ca", HashAlgorithm::Blake2s),
+        match_tiger: ("6706d961075ae8416586f0d91f23a7f171fb671b0933d439", HashAlgorithm::Tiger),
     }
 
     #[wasm_bindgen_test]
@@ -207,6 +208,6 @@ mod tests {
         }
 
         let last: usize = output.into_iter().last().unwrap().clone();
-        debug_assert_eq!(WORD_LIMIT*12, last, "Last value is not the expected: {}", last);
+        debug_assert_eq!(WORD_LIMIT*13, last, "Last value is not the expected: {}", last);
     }
 }

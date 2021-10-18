@@ -17,7 +17,8 @@ pub mod implementations {
         Md2 = 9,
         Ripemd160 = 10,
         Blake2b = 11,
-        Blake2s = 12
+        Blake2s = 12,
+        Tiger = 13,
     }
 
     #[wasm_bindgen]
@@ -57,8 +58,9 @@ pub mod implementations {
     struct Md2Wrapper {}
     struct Blake2bWrapper {}
     struct Blake2sWrapper {}
+    struct TigerWrapper {}
 
-    static ALGORITHMS: [HashAlgorithm; 12] = [
+    static ALGORITHMS: [HashAlgorithm; 13] = [
         HashAlgorithm::Md5,
         HashAlgorithm::Base64,
         HashAlgorithm::Sha256,
@@ -71,6 +73,7 @@ pub mod implementations {
         HashAlgorithm::Ripemd160,
         HashAlgorithm::Blake2b,
         HashAlgorithm::Blake2s,
+        HashAlgorithm::Tiger
     ];
 
     impl HashAlgorithm {
@@ -94,6 +97,7 @@ pub mod implementations {
                 HashAlgorithm::Md2 => Some((HashAlgorithm::Md2 as u8, Box::new(Md2Wrapper {}))),
                 HashAlgorithm::Blake2b => Some((HashAlgorithm::Blake2b as u8, Box::new(Blake2bWrapper{}))),
                 HashAlgorithm::Blake2s => Some((HashAlgorithm::Blake2s as u8, Box::new(Blake2sWrapper{}))),
+                HashAlgorithm::Tiger => Some((HashAlgorithm::Tiger as u8, Box::new(TigerWrapper{}))),
             }
         }
     }
@@ -268,6 +272,20 @@ pub mod implementations {
         }
     }
 
+    mod tiger {
+        use tiger::Tiger;
+        use digest::Digest;
+        use crate::HashEncoder;
+        use crate::algorithms::implementations::TigerWrapper;
+
+        impl HashEncoder for TigerWrapper {
+            fn encode(&self, input: &String) -> String {                
+                let result = Tiger::digest(input.as_bytes());
+                format!("{:x}", result)
+            }
+        }
+    }
+
     impl SymetricEncoder for DesWrapper {        
         fn encode(&self, _key: &String, _input: &String) -> String { 
             todo!() 
@@ -338,6 +356,9 @@ mod tests {
         hash_ripemd160: HashAlgorithm::Ripemd160,
         hash_ripemd320: HashAlgorithm::Ripemd320,
         hash_whirlpool: HashAlgorithm::Whirlpool,
+        hash_blacke2b: HashAlgorithm::Blake2b,
+        hash_blacke2s: HashAlgorithm::Blake2s,
+        hash_tiger: HashAlgorithm::Tiger,
     }
 
     symetric_encoder_tests! {
@@ -358,6 +379,7 @@ mod tests {
         whirlpool: (HashAlgorithm::Whirlpool, "bb4f1451ec1b8326643d25d74547591619cb01dd1f104d729a13494cbd95382d3526b00a2d3fdf448e1e4b39887c54fe2aea9767872b58ed361eb3a12075c5b5"),
         blake2b: (HashAlgorithm::Blake2b, "0389abc5ab1e8e170e95aff19d341ecbf88b83a12dd657291ec1254108ea97352c2ff5116902b9fe4021bfe5a6a4372b0f7c9fc2d7dd810c29f85511d1e04c59"),
         blake2s: (HashAlgorithm::Blake2s, "c63813a8f804abece06213a46acd04a2d738c8e7a58fbf94bfe066a9c7f89197"),
+        tiger: (HashAlgorithm::Tiger, "432b916300b93d2849bca4629ad04e6d8acff835aa42a8fa"),
     }
 
     #[test]

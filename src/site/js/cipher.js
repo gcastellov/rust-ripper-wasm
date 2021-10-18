@@ -36,6 +36,8 @@ if (nav !== null && nav !== "undefined") {
                         return "Blake2b-512";
                     case "12":
                         return "Blake2s-256";
+                    case "13":
+                        return "Tiger";
                     default:
                         return id;
                 }

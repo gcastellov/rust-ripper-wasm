@@ -22,6 +22,7 @@ Please, refer to each crate documentation and check its licensing.
 |`whirlpool`  | WHIRLPOOL | [![crates.io](https://img.shields.io/crates/v/whirlpool.svg)](https://crates.io/crates/whirlpool)|
 |`Blake2b`    | BLAKE2B-512 | [![crates.io](https://img.shields.io/crates/v/blake2.svg)](https://crates.io/crates/blake2)|
 |`Blake2s`    | BLAKE2S-256 | [![crates.io](https://img.shields.io/crates/v/blake2.svg)](https://crates.io/crates/blake2)|
+|`Tiger`      | TIGER | [![crates.io](https://img.shields.io/crates/v/tiger.svg)](https://crates.io/crates/tiger)|
 
 <br/>
 
