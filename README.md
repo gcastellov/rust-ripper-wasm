@@ -23,6 +23,11 @@ Please, refer to each crate documentation and check its licensing.
 |`Blake2b`    | BLAKE2B-512 | [![crates.io](https://img.shields.io/crates/v/blake2.svg)](https://crates.io/crates/blake2)|
 |`Blake2s`    | BLAKE2S-256 | [![crates.io](https://img.shields.io/crates/v/blake2.svg)](https://crates.io/crates/blake2)|
 |`Tiger`      | TIGER | [![crates.io](https://img.shields.io/crates/v/tiger.svg)](https://crates.io/crates/tiger)|
+|`Shabal192`  | SHABAL-192 | [![crates.io](https://img.shields.io/crates/v/shabal.svg)](https://crates.io/crates/shabal)|
+|`Shabal224`  | SHABAL-224 | [![crates.io](https://img.shields.io/crates/v/shabal.svg)](https://crates.io/crates/shabal)|
+|`Shabal256`  | SHABAL-256 | [![crates.io](https://img.shields.io/crates/v/shabal.svg)](https://crates.io/crates/shabal)|
+|`Shabal384`  | SHABAL-384 | [![crates.io](https://img.shields.io/crates/v/shabal.svg)](https://crates.io/crates/shabal)|
+|`Shabal512`  | SHABAL-512 | [![crates.io](https://img.shields.io/crates/v/shabal.svg)](https://crates.io/crates/shabal)|
 
 <br/>
 

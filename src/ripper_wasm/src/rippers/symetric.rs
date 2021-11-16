@@ -55,7 +55,7 @@ impl SymetricRipper {
         
         if self.inner.dictionary.get_index() == 0 {
             if let Some(key) = self.key_dictionary.next() {
-                current_key = key.clone();
+                current_key = key;
             } else {
                 return false;
             }

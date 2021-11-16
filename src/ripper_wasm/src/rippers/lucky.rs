@@ -38,7 +38,7 @@ impl Iterator for AlgorithmList {
     fn next(&mut self) -> Option<Self::Item> { 
         if let Some(algorithm) = self.algorithms.get(self.index) {
             self.index += 1;
-            Some(algorithm.clone())
+            Some(*algorithm)
         } else {
             None
         }
@@ -46,6 +46,7 @@ impl Iterator for AlgorithmList {
 }
 
 #[wasm_bindgen]
+#[derive(Default)]
 pub struct LuckyRipper {
     inner: Inner,
     input: String,

@@ -14,6 +14,7 @@ pub mod core {
         dictionary_selection: Vec<String>,
     }
 
+    #[derive(Default)]
     pub struct Inner {
         pub input: String,
         pub word_match: Option<String>,
@@ -68,7 +69,7 @@ pub mod core {
         fn extract(entries: &str) -> Vec<String> {
             entries
                 .split("\r\n")
-                .map(|word|word.split("\n"))
+                .map(|word|word.split('\n'))
                 .flatten()
                 .filter_map(|word|if word.is_empty() { None } else { Some(word.to_string()) })
                 .collect()
@@ -148,7 +149,7 @@ pub mod core {
         pub fn new(dictionary: Box<Dictionary>) -> Self {
             Inner {
                 input: String::default(),
-                dictionary: dictionary,
+                dictionary,
                 word_match: None,
                 starting_at: None,
             }

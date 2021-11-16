@@ -179,6 +179,8 @@ mod tests {
     #[wasm_bindgen_test]
     fn get_progress_until_end() {
         const WORD_LIMIT: usize = 10000;
+        const NUMBER_OF_HASHERS: usize = 18;
+
         let mut output: Vec<usize> = Vec::default();
         let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
         let words: String = (0..WORD_LIMIT)
@@ -208,6 +210,6 @@ mod tests {
         }
 
         let last: usize = output.into_iter().last().unwrap().clone();
-        debug_assert_eq!(WORD_LIMIT*13, last, "Last value is not the expected: {}", last);
+        debug_assert_eq!(WORD_LIMIT * NUMBER_OF_HASHERS, last, "Last value is not the expected: {}", last);
     }
 }

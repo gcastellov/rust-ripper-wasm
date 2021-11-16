@@ -8,6 +8,7 @@ use crate::HashAlgorithm;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
+#[derive(Default)]
 pub struct HashRipper {
     inner: Inner,
     algorithm: Option<HashAlgorithm>,
@@ -15,6 +16,7 @@ pub struct HashRipper {
 }
 
 #[wasm_bindgen]
+#[derive(Default)]
 pub struct HashCipher {
     word: Option<String>,
     encoders: Vec<(u8, Box<dyn HashEncoder>)>
@@ -22,7 +24,7 @@ pub struct HashCipher {
 
 #[wasm_bindgen]
 impl HashCipher {
-
+    
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         HashCipher {

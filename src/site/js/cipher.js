@@ -11,36 +11,29 @@ if (nav !== null && nav !== "undefined") {
             const divResults = document.getElementById("results");
 
             const getAlgorithm = (id) => {
-                switch(id) {
-                    case "1":
-                        return "Md5";
-                    case "2":
-                        return "Base64";
-                    case "3":
-                        return "Sha-256";
-                    case "4":
-                        return "Md4";
-                    case "5":
-                        return "Sha1";
-                    case "6":
-                        return "Ripemd-128";
-                    case "7":
-                        return "Ripemd-320";
-                    case "8":
-                        return "Whirlpool";
-                    case "9":
-                        return "Md2";
-                    case "10":
-                        return "Ripemd-160";
-                    case "11":
-                        return "Blake2b-512";
-                    case "12":
-                        return "Blake2s-256";
-                    case "13":
-                        return "Tiger";
-                    default:
-                        return id;
-                }
+
+                let names = {
+                    1: "Md5",
+                    2: "Base64",
+                    3: "Sha-256",
+                    4: "Md4",
+                    5: "Sha1",
+                    6: "Ripemd-128",
+                    7: "Ripemd-320",
+                    8: "Whirlpool",
+                    9: "Md2",
+                    10: "Ripemd-160",
+                    11: "Blake2b-512",
+                    12: "Blake2s-256",
+                    13: "Tiger",
+                    14: "Shabal192",
+                    15: "Shabal224",
+                    16: "Shabal256",
+                    17: "Shabal384",
+                    18: "Shabal512",
+                };
+
+                return names[id];
             };
 
             const write_ciphers = (ciphers) => {
