@@ -1,10 +1,10 @@
 use crate::rippers::CHUNK_SIZE;
+use crate::Dictionary;
 use crate::DictionaryManager;
+use crate::Inner;
+use crate::SymetricAlgorithm;
 use crate::SymetricEncoder;
 use crate::SymetricEncoderFactory;
-use crate::Dictionary;
-use crate::SymetricAlgorithm;
-use crate::Inner;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -17,7 +17,6 @@ pub struct SymetricRipper {
 
 #[wasm_bindgen]
 impl SymetricRipper {
-
     #[wasm_bindgen(constructor)]
     pub fn new(dictionary_manager: &mut DictionaryManager) -> Self {
         SymetricRipper {
@@ -52,7 +51,7 @@ impl SymetricRipper {
         let starting = js_sys::Date::now();
         let encoder = self.encoder.as_ref().unwrap();
         let mut current_key: String = String::default();
-        
+
         if self.inner.dictionary.get_index() == 0 {
             if let Some(key) = self.key_dictionary.next() {
                 current_key = key;
@@ -62,21 +61,20 @@ impl SymetricRipper {
         }
 
         while let Some(chunk) = self.inner.dictionary.get_chunk(CHUNK_SIZE) {
-            
             let mut index = 0;
             let mut current: Option<&String> = chunk.get(index);
-            
+
             while self.inner.word_match.is_none() && current.is_some() {
                 let current_word = current.unwrap();
                 let digest = encoder.encode(current_word, &current_key);
                 if digest == self.inner.input {
                     self.inner.word_match = Some(current_word.clone());
                 }
-                
+
                 index += 1;
                 current = chunk.get(index);
             }
-            
+
             self.inner.dictionary.forward(CHUNK_SIZE);
             if self.inner.word_match.is_some() || js_sys::Date::now() - starting > milliseconds {
                 break;
@@ -105,6 +103,11 @@ impl SymetricRipper {
     }
 
     pub fn get_last_word(&self) -> String {
-        (self.inner.dictionary.get_last().unwrap_or(&String::default())).to_owned()
+        (self
+            .inner
+            .dictionary
+            .get_last()
+            .unwrap_or(&String::default()))
+        .to_owned()
     }
 }

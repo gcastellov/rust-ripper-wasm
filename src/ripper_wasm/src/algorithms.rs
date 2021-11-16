@@ -1,7 +1,28 @@
 pub mod implementations {
 
-    use wasm_bindgen::prelude::*;
     use std::slice::Iter;
+    use wasm_bindgen::prelude::*;
+
+    macro_rules! define_types {
+        ($($type:ident),*) => {
+            $(
+            struct $type;
+            )*
+        }
+    }
+
+    macro_rules! impl_digest {
+        ($($type:ident: $wrapper:ident),*) => {
+            $(
+                impl HashEncoder for $wrapper {
+                    fn encode(&self, input: &str) -> String {
+                        let result = $type::digest(input.as_bytes());
+                        format!("{:x}", result)
+                    }
+                }
+            )*
+        };
+    }
 
     #[wasm_bindgen]
     #[derive(Clone, Copy)]
@@ -40,35 +61,37 @@ pub mod implementations {
     pub trait SymetricEncoderFactory {
         fn get_encoder(&self) -> Option<Box<dyn SymetricEncoder>>;
     }
-    
+
     pub trait HashEncoder {
         fn encode(&self, input: &str) -> String;
     }
 
     pub trait SymetricEncoder {
         fn encode(&self, key: &str, input: &str) -> String;
-    }   
+    }
 
-    struct Md5Wrapper {}
-    struct Base64Wrapper {}
-    struct Sha256Wrapper {}
-    struct Md4Wrapper {}
-    struct Sha1Wrapper {}
-    struct DesWrapper {}
-    struct Des3Wrapper {}
-    struct Ripemd128Wrapper {}
-    struct Ripemd160Wrapper {}
-    struct Ripemd320Wrapper {}
-    struct WhirlpoolWrapper {}
-    struct Md2Wrapper {}
-    struct Blake2bWrapper {}
-    struct Blake2sWrapper {}
-    struct TigerWrapper {}
-    struct Shabal192Wrapper {}
-    struct Shabal224Wrapper {}
-    struct Shabal256Wrapper {}
-    struct Shabal384Wrapper {}
-    struct Shabal512Wrapper {}
+    define_types!(
+        Md5Wrapper,
+        Base64Wrapper,
+        Sha256Wrapper,
+        Md4Wrapper,
+        Sha1Wrapper,
+        DesWrapper,
+        Des3Wrapper,
+        Ripemd128Wrapper,
+        Ripemd160Wrapper,
+        Ripemd320Wrapper,
+        WhirlpoolWrapper,
+        Md2Wrapper,
+        Blake2bWrapper,
+        Blake2sWrapper,
+        TigerWrapper,
+        Shabal192Wrapper,
+        Shabal224Wrapper,
+        Shabal256Wrapper,
+        Shabal384Wrapper,
+        Shabal512Wrapper
+    );
 
     static ALGORITHMS: [HashAlgorithm; 18] = [
         HashAlgorithm::Md5,
@@ -88,7 +111,7 @@ pub mod implementations {
         HashAlgorithm::Shabal224,
         HashAlgorithm::Shabal256,
         HashAlgorithm::Shabal384,
-        HashAlgorithm::Shabal512
+        HashAlgorithm::Shabal512,
     ];
 
     impl HashAlgorithm {
@@ -103,46 +126,46 @@ pub mod implementations {
     }
 
     impl HashEncoderFactory for HashAlgorithm {
-        fn get_encoder(&self) -> Option<(u8, Box<dyn HashEncoder>)> { 
-            let code = self.get_code();            
+        fn get_encoder(&self) -> Option<(u8, Box<dyn HashEncoder>)> {
+            let code = self.get_code();
             match self {
-                HashAlgorithm::Md5 => Some((code, Box::new(Md5Wrapper { }))),
-                HashAlgorithm::Sha256 => Some((code, Box::new(Sha256Wrapper { }))),
-                HashAlgorithm::Base64 => Some((code, Box::new(Base64Wrapper { }))),
-                HashAlgorithm::Md4 => Some((code, Box::new(Md4Wrapper { }))),
-                HashAlgorithm::Sha1 => Some((code, Box::new(Sha1Wrapper { }))),
-                HashAlgorithm::Ripemd128 => Some((code, Box::new(Ripemd128Wrapper { }))),
-                HashAlgorithm::Ripemd160 => Some((code, Box::new(Ripemd160Wrapper { }))),
-                HashAlgorithm::Ripemd320 => Some((code, Box::new(Ripemd320Wrapper { }))),
-                HashAlgorithm::Whirlpool => Some((code, Box::new(WhirlpoolWrapper { }))),
+                HashAlgorithm::Md5 => Some((code, Box::new(Md5Wrapper {}))),
+                HashAlgorithm::Sha256 => Some((code, Box::new(Sha256Wrapper {}))),
+                HashAlgorithm::Base64 => Some((code, Box::new(Base64Wrapper {}))),
+                HashAlgorithm::Md4 => Some((code, Box::new(Md4Wrapper {}))),
+                HashAlgorithm::Sha1 => Some((code, Box::new(Sha1Wrapper {}))),
+                HashAlgorithm::Ripemd128 => Some((code, Box::new(Ripemd128Wrapper {}))),
+                HashAlgorithm::Ripemd160 => Some((code, Box::new(Ripemd160Wrapper {}))),
+                HashAlgorithm::Ripemd320 => Some((code, Box::new(Ripemd320Wrapper {}))),
+                HashAlgorithm::Whirlpool => Some((code, Box::new(WhirlpoolWrapper {}))),
                 HashAlgorithm::Md2 => Some((code, Box::new(Md2Wrapper {}))),
-                HashAlgorithm::Blake2b => Some((code, Box::new(Blake2bWrapper{}))),
-                HashAlgorithm::Blake2s => Some((code, Box::new(Blake2sWrapper{}))),
-                HashAlgorithm::Tiger => Some((code, Box::new(TigerWrapper{}))),
-                HashAlgorithm::Shabal192 => Some((code, Box::new(Shabal192Wrapper{}))),
-                HashAlgorithm::Shabal224 => Some((code, Box::new(Shabal224Wrapper{}))),
-                HashAlgorithm::Shabal256 => Some((code, Box::new(Shabal256Wrapper{}))),
-                HashAlgorithm::Shabal384 => Some((code, Box::new(Shabal384Wrapper{}))),
-                HashAlgorithm::Shabal512 => Some((code, Box::new(Shabal512Wrapper{})))
+                HashAlgorithm::Blake2b => Some((code, Box::new(Blake2bWrapper {}))),
+                HashAlgorithm::Blake2s => Some((code, Box::new(Blake2sWrapper {}))),
+                HashAlgorithm::Tiger => Some((code, Box::new(TigerWrapper {}))),
+                HashAlgorithm::Shabal192 => Some((code, Box::new(Shabal192Wrapper {}))),
+                HashAlgorithm::Shabal224 => Some((code, Box::new(Shabal224Wrapper {}))),
+                HashAlgorithm::Shabal256 => Some((code, Box::new(Shabal256Wrapper {}))),
+                HashAlgorithm::Shabal384 => Some((code, Box::new(Shabal384Wrapper {}))),
+                HashAlgorithm::Shabal512 => Some((code, Box::new(Shabal512Wrapper {}))),
             }
         }
     }
 
     impl SymetricEncoderFactory for SymetricAlgorithm {
-        fn get_encoder(&self) -> Option<Box<dyn SymetricEncoder>> { 
+        fn get_encoder(&self) -> Option<Box<dyn SymetricEncoder>> {
             match self {
-                SymetricAlgorithm::Des => Some(Box::new(DesWrapper { })),
-                SymetricAlgorithm::Des3 => Some(Box::new(Des3Wrapper { }))
+                SymetricAlgorithm::Des => Some(Box::new(DesWrapper {})),
+                SymetricAlgorithm::Des3 => Some(Box::new(Des3Wrapper {})),
             }
         }
     }
 
     mod md5 {
-        use crate::HashEncoder;
         use crate::algorithms::implementations::Md5Wrapper;
+        use crate::HashEncoder;
 
-        impl HashEncoder for Md5Wrapper {    
-            fn encode(&self, input: &str) -> String { 
+        impl HashEncoder for Md5Wrapper {
+            fn encode(&self, input: &str) -> String {
                 let digest = md5::compute(input);
                 format!("{:x}", digest)
             }
@@ -154,7 +177,7 @@ pub mod implementations {
         use crate::HashEncoder;
 
         impl HashEncoder for Base64Wrapper {
-            fn encode(&self, input: &str) -> String { 
+            fn encode(&self, input: &str) -> String {
                 base64::encode(input)
             }
         }
@@ -165,34 +188,28 @@ pub mod implementations {
         use crate::HashEncoder;
 
         impl HashEncoder for Sha256Wrapper {
-            fn encode(&self, input: &str) -> String { 
+            fn encode(&self, input: &str) -> String {
                 sha256::digest(input)
             }
         }
     }
 
     mod md4 {
-        use md4::{Md4, Digest};
         use crate::algorithms::implementations::Md4Wrapper;
         use crate::HashEncoder;
+        use md4::{Digest, Md4};
 
-        impl HashEncoder for Md4Wrapper {
-            fn encode(&self, input: &str) -> String { 
-                let mut hasher = Md4::new();
-                hasher.update(input);
-                let result = hasher.finalize();
-                format!("{:x}", result)
-            }
-        }
+        impl_digest!(Md4: Md4Wrapper);
     }
 
     mod sha1 {
         use crate::algorithms::implementations::Sha1Wrapper;
         use crate::HashEncoder;
+        use sha1::Sha1;
 
         impl HashEncoder for Sha1Wrapper {
-            fn encode(&self, input: &str) -> String { 
-                let mut hasher = sha1::Sha1::new();
+            fn encode(&self, input: &str) -> String {
+                let mut hasher = Sha1::new();
                 hasher.update(input.as_bytes());
                 hasher.digest().to_string()
             }
@@ -200,176 +217,100 @@ pub mod implementations {
     }
 
     mod ripemd320 {
-        use ripemd320::{Ripemd320, Digest};
         use crate::algorithms::implementations::Ripemd320Wrapper;
         use crate::HashEncoder;
+        use ripemd320::{Digest, Ripemd320};
 
-        impl HashEncoder for Ripemd320Wrapper {
-            fn encode(&self, input: &str) -> String { 
-                let result = Ripemd320::digest(input.as_bytes());
-                format!("{:x}", result)
-            }
-        }
+        impl_digest!(Ripemd320: Ripemd320Wrapper);
     }
 
     mod ripemd160 {
-        use ripemd160::{Ripemd160, Digest};
         use crate::algorithms::implementations::Ripemd160Wrapper;
         use crate::HashEncoder;
+        use ripemd160::{Digest, Ripemd160};
 
-
-        impl HashEncoder for Ripemd160Wrapper {
-            fn encode(&self, input: &str) -> String {
-                let mut hasher = Ripemd160::default();
-                hasher.update(input);
-                let result = hasher.finalize();
-                format!("{:x}", result)
-            }
-        }
+        impl_digest!(Ripemd160: Ripemd160Wrapper);
     }
 
     mod ripemd128 {
-        use ripemd128::{Ripemd128, Digest};
         use crate::algorithms::implementations::Ripemd128Wrapper;
         use crate::HashEncoder;
+        use ripemd128::{Digest, Ripemd128};
 
-        impl HashEncoder for Ripemd128Wrapper {
-            fn encode(&self, input: &str) -> String {
-                let mut hasher = Ripemd128::default();
-                hasher.input(input.as_bytes());
-                let result = hasher.result();
-                format!("{:x}", result)
-            }
-        }
+        impl_digest!(Ripemd128: Ripemd128Wrapper);
     }
 
     mod whirlpool {
-        use whirlpool::{Whirlpool, Digest};
-        use crate::HashEncoder;
         use crate::algorithms::implementations::WhirlpoolWrapper;
+        use crate::HashEncoder;
+        use whirlpool::{Digest, Whirlpool};
 
-        impl HashEncoder for WhirlpoolWrapper {
-            fn encode(&self, input: &str) -> String {
-                let mut hasher = Whirlpool::new();
-                hasher.update(input);
-                let result = hasher.finalize();
-                format!("{:x}", result)
-            }
-        }
+        impl_digest!(Whirlpool: WhirlpoolWrapper);
     }
 
     mod md2 {
-        use md2::{Md2, Digest};
-        use crate::HashEncoder;
         use crate::algorithms::implementations::Md2Wrapper;
+        use crate::HashEncoder;
+        use md2::{Digest, Md2};
 
-        impl HashEncoder for Md2Wrapper {
-            fn encode(&self, input: &str) -> String {
-                let mut hasher = Md2::new();
-                hasher.update(input);
-                let result = hasher.finalize();
-                format!("{:x}", result)
-            }
-        }
+        impl_digest!(Md2: Md2Wrapper);
     }
 
     mod blake2 {
-        use blake2::{Digest, Blake2b, Blake2s};
-        use crate::HashEncoder;
         use crate::algorithms::implementations::Blake2bWrapper;
         use crate::algorithms::implementations::Blake2sWrapper;
+        use crate::HashEncoder;
+        use blake2::{Blake2b, Blake2s, Digest};
 
-        impl HashEncoder for Blake2bWrapper {
-            fn encode(&self, input: &str) -> String {
-                let mut hasher = Blake2b::new();
-                hasher.update(input);
-                let result = hasher.finalize();
-                format!("{:x}", result)
-            }
-        }
-
-        impl HashEncoder for Blake2sWrapper {
-            fn encode(&self, input: &str) -> String {
-                let mut hasher = Blake2s::new();
-                hasher.update(input);
-                let result = hasher.finalize();
-                format!("{:x}", result)
-            }
-        }
+        impl_digest!(Blake2b: Blake2bWrapper, Blake2s: Blake2sWrapper);
     }
 
     mod tiger {
-        use tiger::Tiger;
-        use digest::Digest;
-        use crate::HashEncoder;
         use crate::algorithms::implementations::TigerWrapper;
+        use crate::HashEncoder;
+        use digest::Digest;
+        use tiger::Tiger;
 
-        impl HashEncoder for TigerWrapper {
-            fn encode(&self, input: &str) -> String {                
-                let result = Tiger::digest(input.as_bytes());
-                format!("{:x}", result)
-            }
-        }
+        impl_digest!(Tiger: TigerWrapper);
     }
 
     mod shabal {
-        use shabal::{Shabal192, Shabal224, Shabal256, Shabal384, Shabal512, Digest};
+        use crate::algorithms::implementations::{
+            Shabal192Wrapper, Shabal224Wrapper, Shabal256Wrapper, Shabal384Wrapper,
+            Shabal512Wrapper,
+        };
         use crate::HashEncoder;
-        use crate::algorithms::implementations::{Shabal192Wrapper, Shabal224Wrapper, Shabal256Wrapper, Shabal384Wrapper, Shabal512Wrapper};
+        use shabal::{Digest, Shabal192, Shabal224, Shabal256, Shabal384, Shabal512};
 
-        impl HashEncoder for Shabal192Wrapper {
-            fn encode(&self, input: &str) -> String {                
-                let result = Shabal192::digest(input.as_bytes());
-                format!("{:x}", result)
-            }
-        }
+        impl_digest!(
+            Shabal192: Shabal192Wrapper,
+            Shabal224: Shabal224Wrapper,
+            Shabal256: Shabal256Wrapper,
+            Shabal384: Shabal384Wrapper,
+            Shabal512: Shabal512Wrapper
+        );
+    }
 
-        impl HashEncoder for Shabal224Wrapper {
-            fn encode(&self, input: &str) -> String {                
-                let result = Shabal224::digest(input.as_bytes());
-                format!("{:x}", result)
-            }
-        }
-
-        impl HashEncoder for Shabal256Wrapper {
-            fn encode(&self, input: &str) -> String {                
-                let result = Shabal256::digest(input.as_bytes());
-                format!("{:x}", result)
-            }
-        }
-
-        impl HashEncoder for Shabal384Wrapper {
-            fn encode(&self, input: &str) -> String {                
-                let result = Shabal384::digest(input.as_bytes());
-                format!("{:x}", result)
-            }
-        }
-
-        impl HashEncoder for Shabal512Wrapper {
-            fn encode(&self, input: &str) -> String {                
-                let result = Shabal512::digest(input.as_bytes());
-                format!("{:x}", result)
-            }
+    impl SymetricEncoder for DesWrapper {
+        fn encode(&self, _key: &str, _input: &str) -> String {
+            todo!()
         }
     }
 
-    impl SymetricEncoder for DesWrapper {        
-        fn encode(&self, _key: &str, _input: &str) -> String { 
-            todo!() 
-        }
-    }
-
-    impl SymetricEncoder for Des3Wrapper {        
-        fn encode(&self, _key: &str, _input: &str) -> String { 
-            todo!() 
+    impl SymetricEncoder for Des3Wrapper {
+        fn encode(&self, _key: &str, _input: &str) -> String {
+            todo!()
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    
-    use crate::algorithms::implementations::{HashEncoderFactory, SymetricEncoderFactory, SymetricAlgorithm, HashAlgorithm, HashEncoder, SymetricEncoder};
+
+    use crate::algorithms::implementations::{
+        HashAlgorithm, HashEncoder, HashEncoderFactory, SymetricAlgorithm, SymetricEncoder,
+        SymetricEncoderFactory,
+    };
 
     macro_rules! hash_algorithm_tests {
         ($($name:ident: $value:expr,)*) => {

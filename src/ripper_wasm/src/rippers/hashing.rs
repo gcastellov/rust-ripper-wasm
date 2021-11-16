@@ -1,10 +1,10 @@
 use crate::internals::core::Dictionary;
 use crate::rippers::CHUNK_SIZE;
 use crate::DictionaryManager;
-use crate::HashEncoderFactory;
-use crate::HashEncoder;
-use crate::Inner;
 use crate::HashAlgorithm;
+use crate::HashEncoder;
+use crate::HashEncoderFactory;
+use crate::Inner;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -19,24 +19,25 @@ pub struct HashRipper {
 #[derive(Default)]
 pub struct HashCipher {
     word: Option<String>,
-    encoders: Vec<(u8, Box<dyn HashEncoder>)>
+    encoders: Vec<(u8, Box<dyn HashEncoder>)>,
 }
 
 #[wasm_bindgen]
 impl HashCipher {
-    
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         HashCipher {
             word: None,
-            encoders: HashAlgorithm::iterator().map(|a|a.get_encoder().unwrap()).collect()
+            encoders: HashAlgorithm::iterator()
+                .map(|a| a.get_encoder().unwrap())
+                .collect(),
         }
     }
 
     pub fn set_word(&mut self, word: String) {
         self.word = match word.is_empty() {
             false => Some(word),
-            _ => None
+            _ => None,
         };
     }
 
@@ -44,7 +45,9 @@ impl HashCipher {
         if let Some(word) = self.word {
             self.encoders
                 .iter()
-                .map(|(id, encoder)|JsValue::from_str((id.to_string() + "|" + &encoder.encode(&word)).as_str()))
+                .map(|(id, encoder)| {
+                    JsValue::from_str((id.to_string() + "|" + &encoder.encode(&word)).as_str())
+                })
                 .collect()
         } else {
             Vec::default()
@@ -54,7 +57,6 @@ impl HashCipher {
 
 #[wasm_bindgen]
 impl HashRipper {
-    
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         HashRipper {
@@ -65,7 +67,12 @@ impl HashRipper {
     }
 
     pub fn get_last_word(&self) -> String {
-        (self.inner.dictionary.get_last().unwrap_or(&String::default())).to_owned()
+        (self
+            .inner
+            .dictionary
+            .get_last()
+            .unwrap_or(&String::default()))
+        .to_owned()
     }
 
     pub fn set_input(&mut self, input: &str) {
@@ -87,10 +94,10 @@ impl HashRipper {
         }
 
         self.inner.start_ticking();
-        let algorithm = self.algorithm.as_ref().unwrap();        
+        let algorithm = self.algorithm.as_ref().unwrap();
         self.encoder = match algorithm.get_encoder() {
             Some((_, encoder)) => Some(encoder),
-            _ => None
+            _ => None,
         };
     }
 
@@ -121,27 +128,30 @@ impl HashRipper {
 }
 
 impl HashRipper {
-
-    pub fn core_check(milliseconds: f64, mut inner: &mut Inner, encoder: &Box<dyn HashEncoder>) -> bool {
+    pub fn core_check(
+        milliseconds: f64,
+        mut inner: &mut Inner,
+        encoder: &Box<dyn HashEncoder>,
+    ) -> bool {
         let starting = js_sys::Date::now();
 
         while let Some(chunk) = inner.dictionary.get_chunk(CHUNK_SIZE) {
             let mut index = 0;
             let mut current: Option<&String> = chunk.get(index);
-            
+
             while inner.word_match.is_none() && current.is_some() {
                 let current_word = current.unwrap();
                 let digest = encoder.encode(current_word);
                 if digest == inner.input {
                     inner.word_match = Some(current_word.clone());
                 }
-                
+
                 index += 1;
                 current = chunk.get(index);
             }
-            
+
             inner.dictionary.forward(CHUNK_SIZE);
-            
+
             if inner.word_match.is_some() || js_sys::Date::now() - starting > milliseconds {
                 break;
             }

@@ -1,8 +1,8 @@
-use crate::DictionaryManager;
 use crate::internals::core::Dictionary;
 use crate::rippers::hashing::HashRipper;
-use crate::HashEncoder;
+use crate::DictionaryManager;
 use crate::HashAlgorithm;
+use crate::HashEncoder;
 use crate::HashEncoderFactory;
 use crate::Inner;
 use wasm_bindgen::prelude::*;
@@ -16,7 +16,7 @@ impl Default for AlgorithmList {
     fn default() -> Self {
         AlgorithmList {
             index: 0,
-            algorithms: HashAlgorithm::iterator().cloned().collect()
+            algorithms: HashAlgorithm::iterator().cloned().collect(),
         }
     }
 }
@@ -35,7 +35,7 @@ impl AlgorithmList {
 
 impl Iterator for AlgorithmList {
     type Item = HashAlgorithm;
-    fn next(&mut self) -> Option<Self::Item> { 
+    fn next(&mut self) -> Option<Self::Item> {
         if let Some(algorithm) = self.algorithms.get(self.index) {
             self.index += 1;
             Some(*algorithm)
@@ -52,12 +52,11 @@ pub struct LuckyRipper {
     input: String,
     encoder: Option<Box<dyn HashEncoder>>,
     algorithm_list: AlgorithmList,
-    has_ended: bool
+    has_ended: bool,
 }
 
 #[wasm_bindgen]
 impl LuckyRipper {
-    
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         LuckyRipper {
@@ -65,12 +64,17 @@ impl LuckyRipper {
             algorithm_list: AlgorithmList::default(),
             encoder: None,
             input: String::default(),
-            has_ended: false
+            has_ended: false,
         }
     }
 
     pub fn get_last_word(&self) -> String {
-        (self.inner.dictionary.get_last().unwrap_or(&String::default())).to_owned()
+        (self
+            .inner
+            .dictionary
+            .get_last()
+            .unwrap_or(&String::default()))
+        .to_owned()
     }
 
     pub fn set_input(&mut self, input: &str) {
@@ -80,7 +84,7 @@ impl LuckyRipper {
     pub fn get_progress(&mut self) -> usize {
         let checked_algorithms = match self.inner.dictionary.get_index() {
             0 => HashAlgorithm::iterator().len() - self.algorithm_list.len(),
-            _ => HashAlgorithm::iterator().len() - self.algorithm_list.len() - 1
+            _ => HashAlgorithm::iterator().len() - self.algorithm_list.len() - 1,
         };
         checked_algorithms * self.inner.dictionary.len() + self.inner.dictionary.get_index()
     }
@@ -102,11 +106,14 @@ impl LuckyRipper {
     }
 
     pub fn check(&mut self, milliseconds: f64) -> bool {
-        if self.inner.word_match.is_none() && self.inner.dictionary.get_index() == 0 && !self.algorithm_list.is_empty() {
+        if self.inner.word_match.is_none()
+            && self.inner.dictionary.get_index() == 0
+            && !self.algorithm_list.is_empty()
+        {
             if let Some(algorithm) = self.algorithm_list.pop() {
                 self.encoder = match algorithm.get_encoder() {
                     Some((_, encoder)) => Some(encoder),
-                    _ => None
+                    _ => None,
                 };
                 let original_input = self.input.clone();
                 self.inner.input = match algorithm {
@@ -119,7 +126,9 @@ impl LuckyRipper {
         let encoder = self.encoder.as_ref().unwrap();
         let result = HashRipper::core_check(milliseconds, &mut self.inner, encoder);
 
-        if self.inner.dictionary.get_index() == self.inner.dictionary.len() && self.inner.word_match.is_none() {
+        if self.inner.dictionary.get_index() == self.inner.dictionary.len()
+            && self.inner.word_match.is_none()
+        {
             self.has_ended = self.algorithm_list.is_empty();
             if !self.has_ended {
                 self.inner.dictionary.start();

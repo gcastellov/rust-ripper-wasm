@@ -1,17 +1,17 @@
 use crate::algorithms::implementations::*;
 use crate::internals::core::*;
 
-extern crate js_sys;
 extern crate base64;
-extern crate md5;
-extern crate sha256;
-extern crate md4;
-extern crate sha1;
-extern crate ripemd320;
-extern crate ripemd160;
-extern crate ripemd128;
-extern crate whirlpool;
+extern crate js_sys;
 extern crate md2;
+extern crate md4;
+extern crate md5;
+extern crate ripemd128;
+extern crate ripemd160;
+extern crate ripemd320;
+extern crate sha1;
+extern crate sha256;
+extern crate whirlpool;
 
 mod algorithms;
 mod internals;
@@ -22,16 +22,15 @@ mod tests {
 
     #![cfg(target_arch = "wasm32")]
     extern crate wasm_bindgen_test;
+    use super::*;
     use crate::rippers::hashing::HashRipper;
     use crate::rippers::lucky::LuckyRipper;
-    use crate::internals::core::*;
     use wasm_bindgen::prelude::*;
     use wasm_bindgen_test::*;
-    use super::*;
 
     const ENGLISH_KEY: &str = "english";
     const FRENCH_KEY: &str = "french";
-        
+
     macro_rules! try_match_tests {
         ($($name:ident: $value:expr,)*) => {
         $(
@@ -40,7 +39,7 @@ mod tests {
                 let (input, algorithm) = $value;
                 const WORD_LIST: &str = "one\r\ntwo\r\nmy_word\r\nthree";
                 const MILLIS: f64 = 500f64;
-                let mut dictionary_manager: DictionaryManager = DictionaryManager::default();                
+                let mut dictionary_manager: DictionaryManager = DictionaryManager::default();
                 dictionary_manager.add_dictionary(ENGLISH_KEY, WORD_LIST);
                 dictionary_manager.load_dictionaries(vec![ JsValue::from_str(ENGLISH_KEY) ]);
 
@@ -49,7 +48,7 @@ mod tests {
                 cracker.set_algorithm(algorithm);
                 cracker.set_input(input);
                 cracker.start_matching();
-                
+
                 assert!(cracker.check(MILLIS));
                 assert_eq!("my_word", cracker.get_match());
             }
@@ -75,25 +74,23 @@ mod tests {
 
     #[wasm_bindgen_test]
     fn chunky_check() {
-        let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
-        let words: String = (0..99999)
-            .map(|num|num.to_string() + "\n")
-            .collect();
+        let dictionary_lists: Vec<JsValue> = vec![JsValue::from_str(ENGLISH_KEY)];
+        let words: String = (0..99999).map(|num| num.to_string() + "\n").collect();
 
         let mut dictionary_manager = DictionaryManager::default();
         dictionary_manager.add_dictionary(ENGLISH_KEY, words.as_str());
         dictionary_manager.load_dictionaries(dictionary_lists);
-        
+
         let mut cracker: HashRipper = HashRipper::new();
         cracker.set_dictionary(&mut dictionary_manager);
         cracker.set_algorithm(HashAlgorithm::Md5);
         cracker.set_input("e57023ed682d83a41d25acb650c877da");
         cracker.start_matching();
-        
+
         while cracker.is_checking() {
             cracker.check(500f64);
         }
-       
+
         assert_eq!("99998", cracker.get_match());
         assert_ne!(0.0, cracker.get_elapsed_seconds());
         assert_ne!(0, cracker.get_progress());
@@ -102,10 +99,8 @@ mod tests {
 
     #[wasm_bindgen_test]
     fn get_lucky_check() {
-        let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
-        let words: String = (0..60)
-            .map(|num|num.to_string() + "\n")
-            .collect();
+        let dictionary_lists: Vec<JsValue> = vec![JsValue::from_str(ENGLISH_KEY)];
+        let words: String = (0..60).map(|num| num.to_string() + "\n").collect();
 
         let mut dictionary_manager = DictionaryManager::default();
         dictionary_manager.add_dictionary(ENGLISH_KEY, words.as_str());
@@ -115,11 +110,11 @@ mod tests {
         cracker.set_dictionary(&mut dictionary_manager);
         cracker.set_input("daa136908bd66810f306b788c644f470");
         cracker.start_matching();
-   
+
         while cracker.is_checking() {
             cracker.check(500f64);
         }
-       
+
         assert_eq!("20", cracker.get_match());
         assert_ne!(0.0, cracker.get_elapsed_seconds());
         assert_ne!(0, cracker.get_progress());
@@ -129,16 +124,19 @@ mod tests {
     #[wasm_bindgen_test]
     fn load_word_entries_reset_values() {
         const WORD_LIST_ONE: &str = "one\r\ntwo\r\nthree";
-        const WORD_LIST_TWO: &str = "one\r\ntwo\r\nthree\r\nfour";        
+        const WORD_LIST_TWO: &str = "one\r\ntwo\r\nthree\r\nfour";
 
         let mut dictionary_manager = DictionaryManager::new();
         dictionary_manager.add_dictionary(ENGLISH_KEY, WORD_LIST_ONE);
         dictionary_manager.add_dictionary(FRENCH_KEY, WORD_LIST_TWO);
-        dictionary_manager.load_dictionaries(vec![ JsValue::from_str(ENGLISH_KEY) ]);
+        dictionary_manager.load_dictionaries(vec![JsValue::from_str(ENGLISH_KEY)]);
         assert_eq!(3, dictionary_manager.get_word_list_count());
-        dictionary_manager.load_dictionaries(vec![ JsValue::from_str(FRENCH_KEY) ]);
+        dictionary_manager.load_dictionaries(vec![JsValue::from_str(FRENCH_KEY)]);
         assert_eq!(4, dictionary_manager.get_word_list_count());
-        dictionary_manager.load_dictionaries(vec![ JsValue::from_str(ENGLISH_KEY), JsValue::from_str(FRENCH_KEY) ]);
+        dictionary_manager.load_dictionaries(vec![
+            JsValue::from_str(ENGLISH_KEY),
+            JsValue::from_str(FRENCH_KEY),
+        ]);
         assert_eq!(7, dictionary_manager.get_word_list_count());
     }
 
@@ -150,7 +148,10 @@ mod tests {
         let mut dictionary_manager = DictionaryManager::new();
         dictionary_manager.add_dictionary(ENGLISH_KEY, WORD_LIST_ONE);
         dictionary_manager.add_dictionary(FRENCH_KEY, WORD_LIST_TWO);
-        dictionary_manager.load_dictionaries(vec![ JsValue::from_str(ENGLISH_KEY), JsValue::from_str(FRENCH_KEY) ]);        
+        dictionary_manager.load_dictionaries(vec![
+            JsValue::from_str(ENGLISH_KEY),
+            JsValue::from_str(FRENCH_KEY),
+        ]);
         let actual = dictionary_manager.get_word_list_count();
         assert_eq!(7, actual);
     }
@@ -182,10 +183,8 @@ mod tests {
         const NUMBER_OF_HASHERS: usize = 18;
 
         let mut output: Vec<usize> = Vec::default();
-        let dictionary_lists: Vec<JsValue> = vec![ JsValue::from_str(ENGLISH_KEY) ];
-        let words: String = (0..WORD_LIMIT)
-            .map(|num|num.to_string() + "\n")
-            .collect();
+        let dictionary_lists: Vec<JsValue> = vec![JsValue::from_str(ENGLISH_KEY)];
+        let words: String = (0..WORD_LIMIT).map(|num| num.to_string() + "\n").collect();
 
         let mut dictionary_manager = DictionaryManager::default();
         dictionary_manager.add_dictionary(ENGLISH_KEY, words.as_str());
@@ -195,7 +194,7 @@ mod tests {
         cracker.set_dictionary(&mut dictionary_manager);
         cracker.set_input("noway");
         cracker.start_matching();
-    
+
         while cracker.is_checking() {
             cracker.check(500f64);
             let progress = cracker.get_progress();
@@ -205,11 +204,21 @@ mod tests {
         let mut former: usize = 0;
         println!("{:?}", output);
         for value in output.clone() {
-            debug_assert!(value >= former, "Last value was greater: {} - {}", former, value);
+            debug_assert!(
+                value >= former,
+                "Last value was greater: {} - {}",
+                former,
+                value
+            );
             former = value;
         }
 
         let last: usize = output.into_iter().last().unwrap().clone();
-        debug_assert_eq!(WORD_LIMIT * NUMBER_OF_HASHERS, last, "Last value is not the expected: {}", last);
+        debug_assert_eq!(
+            WORD_LIMIT * NUMBER_OF_HASHERS,
+            last,
+            "Last value is not the expected: {}",
+            last
+        );
     }
 }
