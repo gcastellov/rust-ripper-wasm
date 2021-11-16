@@ -1,4 +1,5 @@
 [![CI](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/ci.yml/badge.svg)](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/ci.yml)
+[![Docker](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/docker-publish.yml)
 
 
 # WASM rust the ripper 
