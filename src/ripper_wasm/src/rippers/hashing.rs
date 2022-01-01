@@ -1,10 +1,7 @@
-use crate::internals::core::Dictionary;
+use crate::internals::algorithms::{HashAlgorithm, HashEncoder, HashEncoderFactory};
+use crate::internals::management::DictionaryManager;
+use crate::internals::wrapper::Inner;
 use crate::rippers::CHUNK_SIZE;
-use crate::DictionaryManager;
-use crate::HashAlgorithm;
-use crate::HashEncoder;
-use crate::HashEncoderFactory;
-use crate::Inner;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -60,19 +57,18 @@ impl HashRipper {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         HashRipper {
-            inner: Inner::new(Box::new(Dictionary::default())),
+            inner: Inner::default(),
             algorithm: None,
             encoder: None,
         }
     }
 
     pub fn get_last_word(&self) -> String {
-        (self
+        self
             .inner
             .dictionary
             .get_last()
-            .unwrap_or(&String::default()))
-        .to_owned()
+            .unwrap_or(String::default())
     }
 
     pub fn set_input(&mut self, input: &str) {

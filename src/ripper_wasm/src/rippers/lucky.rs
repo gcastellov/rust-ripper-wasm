@@ -1,11 +1,6 @@
-use crate::internals::core::Dictionary;
-use crate::rippers::hashing::HashRipper;
-use crate::DictionaryManager;
-use crate::HashAlgorithm;
-use crate::HashEncoder;
-use crate::HashEncoderFactory;
-use crate::Inner;
+use crate::internals::{algorithms::{HashAlgorithm, HashEncoder, HashEncoderFactory}, wrapper::Inner, dictionary::{DictionaryList}, management::{DictionaryManager}};
 use wasm_bindgen::prelude::*;
+use super::hashing::HashRipper;
 
 struct AlgorithmList {
     index: usize,
@@ -60,7 +55,7 @@ impl LuckyRipper {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         LuckyRipper {
-            inner: Inner::new(Box::new(Dictionary::default())),
+            inner: Inner::new(Box::new(DictionaryList::default())),
             algorithm_list: AlgorithmList::default(),
             encoder: None,
             input: String::default(),
@@ -73,7 +68,7 @@ impl LuckyRipper {
             .inner
             .dictionary
             .get_last()
-            .unwrap_or(&String::default()))
+            .unwrap_or(String::default()))
         .to_owned()
     }
 

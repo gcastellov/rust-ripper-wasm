@@ -1,6 +1,3 @@
-use crate::algorithms::implementations::*;
-use crate::internals::core::*;
-
 extern crate base64;
 extern crate js_sys;
 extern crate md2;
@@ -13,9 +10,8 @@ extern crate sha1;
 extern crate sha256;
 extern crate whirlpool;
 
-mod algorithms;
-mod internals;
 mod rippers;
+mod internals;
 
 #[cfg(test)]
 mod tests {
@@ -23,10 +19,13 @@ mod tests {
     #![cfg(target_arch = "wasm32")]
     extern crate wasm_bindgen_test;
     use super::*;
-    use crate::rippers::hashing::HashRipper;
-    use crate::rippers::lucky::LuckyRipper;
     use wasm_bindgen::prelude::*;
     use wasm_bindgen_test::*;
+    use internals::dictionary::*;
+    use internals::algorithms::*;
+    use internals::wrapper::Inner;
+    use rippers::lucky::LuckyRipper;
+    use rippers::hashing::HashRipper;
 
     const ENGLISH_KEY: &str = "english";
     const FRENCH_KEY: &str = "french";
@@ -158,7 +157,7 @@ mod tests {
 
     #[wasm_bindgen_test]
     fn reset_clear_result() {
-        let dictionary = Dictionary::default();
+        let dictionary = DictionaryList::default();
         let mut inner = Inner::new(Box::new(dictionary));
         inner.word_match = Some(String::from("match"));
         inner.start_ticking();

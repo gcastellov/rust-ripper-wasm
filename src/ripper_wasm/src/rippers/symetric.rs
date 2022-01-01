@@ -1,17 +1,14 @@
-use crate::rippers::CHUNK_SIZE;
-use crate::Dictionary;
-use crate::DictionaryManager;
-use crate::Inner;
-use crate::SymetricAlgorithm;
-use crate::SymetricEncoder;
-use crate::SymetricEncoderFactory;
 use wasm_bindgen::prelude::*;
+
+use crate::internals::{wrapper::Inner, dictionary::{Dictionary, DictionaryList}, management::{DictionaryManager}, algorithms::{SymetricEncoder, SymetricAlgorithm, SymetricEncoderFactory}};
+
+use super::CHUNK_SIZE;
 
 #[wasm_bindgen]
 pub struct SymetricRipper {
     inner: Inner,
     algorithm: Option<SymetricAlgorithm>,
-    key_dictionary: Dictionary,
+    key_dictionary: Box<dyn Dictionary<Item=String>>,
     encoder: Option<Box<dyn SymetricEncoder>>,
 }
 
@@ -21,7 +18,7 @@ impl SymetricRipper {
     pub fn new(dictionary_manager: &mut DictionaryManager) -> Self {
         SymetricRipper {
             inner: Inner::new(dictionary_manager.make()),
-            key_dictionary: Dictionary::default(),
+            key_dictionary: Box::new(DictionaryList::default()),
             algorithm: None,
             encoder: None,
         }
@@ -103,11 +100,10 @@ impl SymetricRipper {
     }
 
     pub fn get_last_word(&self) -> String {
-        (self
+        self
             .inner
             .dictionary
             .get_last()
-            .unwrap_or(&String::default()))
-        .to_owned()
+            .unwrap_or(String::default())
     }
 }
