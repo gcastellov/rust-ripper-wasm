@@ -1,6 +1,5 @@
 use wasm_bindgen::prelude::*;
-
-use crate::internals::{wrapper::Inner, dictionary::{Dictionary, DictionaryList}, management::{DictionaryManager}, algorithms::{SymetricEncoder, SymetricAlgorithm, SymetricEncoderFactory}};
+use crate::internals::{wrapper::Inner, dictionarylist::{DictionaryList}, management::{DictionaryManager, Dictionary}, algorithms::{SymetricEncoder, SymetricAlgorithm, SymetricEncoderFactory}};
 
 use super::CHUNK_SIZE;
 

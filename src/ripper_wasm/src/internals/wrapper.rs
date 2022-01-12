@@ -1,4 +1,4 @@
-use super::dictionary::{Dictionary, DictionaryList};
+use super::{dictionarylist::{DictionaryList}, management::Dictionary};
 
 pub struct Inner {
     pub input: String,

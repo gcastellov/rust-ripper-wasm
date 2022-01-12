@@ -21,8 +21,9 @@ mod tests {
     use super::*;
     use wasm_bindgen::prelude::*;
     use wasm_bindgen_test::*;
-    use internals::dictionary::*;
+    use internals::dictionarylist::*;
     use internals::algorithms::*;
+    use internals::management::*;
     use internals::wrapper::Inner;
     use rippers::lucky::LuckyRipper;
     use rippers::hashing::HashRipper;

@@ -1,11 +1,20 @@
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;
-use super::dictionary::{Dictionary, DictionaryList};
+use super::dictionarylist::{DictionaryList};
 
 #[wasm_bindgen]
 pub struct DictionaryManager {
     dictionary_cache: HashMap<String, Vec<String>>,
     dictionary_selection: Vec<String>,
+}
+
+pub trait Dictionary: Iterator {
+    fn len(&self) -> usize;
+    fn start(&mut self);
+    fn get_index(&self) -> usize;
+    fn get_chunk(&mut self, size: usize) -> Option<&[String]>;
+    fn forward(&mut self, size: usize);
+    fn get_last(&self) -> Option<String>;
 }
 
 #[wasm_bindgen]

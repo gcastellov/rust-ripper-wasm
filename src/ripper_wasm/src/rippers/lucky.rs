@@ -1,4 +1,4 @@
-use crate::internals::{algorithms::{HashAlgorithm, HashEncoder, HashEncoderFactory}, wrapper::Inner, dictionary::{DictionaryList}, management::{DictionaryManager}};
+use crate::internals::{algorithms::{HashAlgorithm, HashEncoder, HashEncoderFactory}, wrapper::Inner, dictionarylist::{DictionaryList}, management::{DictionaryManager}};
 use wasm_bindgen::prelude::*;
 use super::hashing::HashRipper;
 
