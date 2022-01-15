@@ -1,4 +1,4 @@
-FROM rust:1.53.0 as build_rust
+FROM rust:1.58.0 as build_rust
 
 # Install node
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
