@@ -51,7 +51,75 @@
         </nav>
         
         <div>
-            <div class="md:grid md:grid-cols-4 md:gap-6">              
+            <div class="md:grid md:grid-cols-4 md:gap-6">
+
+              <div class="md:col-span-1">
+                <div class="shadow sm:rounded-md sm:overflow-hidden">
+                  <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
+                      <h3 class="text-lg font-medium leading-6 text-gray-900">Dictionaries</h3>
+                      <p class="mt-1 text-sm text-gray-600">
+                        Choose the dictionary type:
+                      </p>
+                      <p>
+                        <input type="radio" name="rdDictionaryType" id="rdList" value="0" checked="checked" />
+                        <label for="rdList">List</label>
+                        <input type="radio" name="rdDictionaryType" id="rdMaker" value="1" />
+                        <label for="rdMaker">Auto generated</label>
+                      </p>
+                      <p id="dictionary-help" class="mt-1 text-sm text-gray-600">
+                        Choose dictionaries to increase your chances
+                      </p>
+                      <div class="dictionaries">
+                          <ul id="dictionary-list">
+                            <li>
+                              <input type="checkbox" id="ckEnglish" name="ckDictionary" value="english.txt" checked="true"></input>
+                              <a for="ckEnglish" target="_blank" href="./assets/english.txt">English</a>
+                            </li>
+                            <li>
+                              <input type="checkbox" id="ckSpanish" name="ckDictionary" value="spanish.txt"></input>
+                              <a for="ckSpanish" target="_blank" href="./assets/spanish.txt">Spanish</a>
+                            </li>
+                            <li>
+                              <input type="checkbox" id="ckFrench" name="ckDictionary" value="french.txt"></input>
+                              <a for="ckFrench" target="_blank" href="./assets/french.txt">French</a>
+                            </li>
+                            <li>
+                              <input type="checkbox" id="ckRussian" name="ckDictionary" value="russian.txt"></input>
+                              <a for="ckRussian" target="_blank" href="./assets/russian.txt">Russian</a>
+                            </li>
+                            <li>
+                              <input type="checkbox" id="ckGerman" name="ckDictionary" value="german.txt"></input>
+                              <a for="ckGerman" target="_blank" href="./assets/german.txt">German</a>
+                            </li>
+                            <li>
+                              <input type="checkbox" id="ckItalian" name="ckDictionary" value="italian.txt"></input>
+                              <a for="ckItalian" target="_blank" href="./assets/italian.txt">Italian</a>
+                            </li>
+                            <li>
+                              <input type="checkbox" id="ckSwedish" name="ckDictionary" value="swedish.txt"></input>
+                              <a for="ckSwedish" target="_blank" href="./assets/swedish.txt">Swedish</a>
+                            </li>
+                            <li>
+                              <input type="checkbox" id="ckFisnish" name="ckDictionary" value="finnish.txt"></input>
+                              <a for="ckFisnish" target="_blank" href="./assets/finnish.txt">Finnish</a>
+                            </li>
+                            <li>
+                              <input type="checkbox" id="ckCzech" name="ckDictionary" value="czech.txt"></input>
+                              <a for="ckCzech" target="_blank" href="./assets/czech.txt">Czech</a>
+                            </li>
+                          </ul>
+                        </div>  
+                    </div>
+                    <div id="dictionary-footer" class="px-4 py-3 bg-gray-50 text-left sm:px-6">
+                      <button type="button" name="btnAll" id="btnAll" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
+                        Select all
+                      </button>
+                      <label for="file-input" id="file-input-label" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">Use yours</label>
+                      <input type="file" id="file-input" accept="text/plain" />
+                    </div>
+                </div>
+              </div>
+              
               <div class="md:col-span-1">
                 <div class="shadow sm:rounded-md sm:overflow-hidden">
                     <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
@@ -145,74 +213,6 @@
                       </div>
                 </div>
               </div>
-
-              <div class="md:col-span-1">
-                  <div class="shadow sm:rounded-md sm:overflow-hidden">
-                    <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
-                        <h3 class="text-lg font-medium leading-6 text-gray-900">Dictionaries</h3>
-                        <p class="mt-1 text-sm text-gray-600">
-                          Choose the dictionary type:
-                        </p>
-                        <p>
-                          <input type="radio" name="rdDictionaryType" id="rdList" value="0" checked="checked" />
-                          <label for="rdList">List</label>
-                          <input type="radio" name="rdDictionaryType" id="rdMaker" value="1" />
-                          <label for="rdMaker">Auto generated</label>
-                        </p>
-                        <p id="dictionary-help" class="mt-1 text-sm text-gray-600">
-                          Choose dictionaries to increase your chances
-                        </p>
-                        <div class="dictionaries">
-                            <ul id="dictionary-list">
-                              <li>
-                                <input type="checkbox" id="ckEnglish" name="ckDictionary" value="english.txt" checked="true"></input>
-                                <a for="ckEnglish" target="_blank" href="./assets/english.txt">English</a>
-                              </li>
-                              <li>
-                                <input type="checkbox" id="ckSpanish" name="ckDictionary" value="spanish.txt"></input>
-                                <a for="ckSpanish" target="_blank" href="./assets/spanish.txt">Spanish</a>
-                              </li>
-                              <li>
-                                <input type="checkbox" id="ckFrench" name="ckDictionary" value="french.txt"></input>
-                                <a for="ckFrench" target="_blank" href="./assets/french.txt">French</a>
-                              </li>
-                              <li>
-                                <input type="checkbox" id="ckRussian" name="ckDictionary" value="russian.txt"></input>
-                                <a for="ckRussian" target="_blank" href="./assets/russian.txt">Russian</a>
-                              </li>
-                              <li>
-                                <input type="checkbox" id="ckGerman" name="ckDictionary" value="german.txt"></input>
-                                <a for="ckGerman" target="_blank" href="./assets/german.txt">German</a>
-                              </li>
-                              <li>
-                                <input type="checkbox" id="ckItalian" name="ckDictionary" value="italian.txt"></input>
-                                <a for="ckItalian" target="_blank" href="./assets/italian.txt">Italian</a>
-                              </li>
-                              <li>
-                                <input type="checkbox" id="ckSwedish" name="ckDictionary" value="swedish.txt"></input>
-                                <a for="ckSwedish" target="_blank" href="./assets/swedish.txt">Swedish</a>
-                              </li>
-                              <li>
-                                <input type="checkbox" id="ckFisnish" name="ckDictionary" value="finnish.txt"></input>
-                                <a for="ckFisnish" target="_blank" href="./assets/finnish.txt">Finnish</a>
-                              </li>
-                              <li>
-                                <input type="checkbox" id="ckCzech" name="ckDictionary" value="czech.txt"></input>
-                                <a for="ckCzech" target="_blank" href="./assets/czech.txt">Czech</a>
-                              </li>
-                            </ul>
-                          </div>  
-                      </div>
-                      <div id="dictionary-footer" class="px-4 py-3 bg-gray-50 text-left sm:px-6">
-                        <button type="button" name="btnAll" id="btnAll" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
-                          Select all
-                        </button>
-                        <label for="file-input" id="file-input-label" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">Use yours</label>
-                        <input type="file" id="file-input" accept="text/plain" />
-                      </div>
-                  </div>
-              </div>
-
 
               <div class="mt-5 md:mt-0 md:col-span-2">
                 <div class="shadow sm:rounded-md sm:overflow-hidden">
