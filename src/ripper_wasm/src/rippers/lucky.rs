@@ -1,7 +1,8 @@
 use crate::internals::{algorithms::{HashAlgorithm, HashEncoder, HashEncoderFactory}, wrapper::Inner, dictionarylist::{DictionaryList}, management::{DictionaryManager}};
+use crate::rippers::CHUNK_SIZE;
 use wasm_bindgen::prelude::*;
-use super::hashing::HashRipper;
 
+#[derive(Clone)]
 struct AlgorithmList {
     index: usize,
     algorithms: Vec<HashAlgorithm>,
@@ -17,12 +18,6 @@ impl Default for AlgorithmList {
 }
 
 impl AlgorithmList {
-    fn pop(&mut self) -> Option<HashAlgorithm> {
-        self.algorithms.pop()
-    }
-    fn is_empty(&self) -> bool {
-        self.algorithms.is_empty()
-    }
     fn len(&self) -> usize {
         self.algorithms.len()
     }
@@ -44,10 +39,7 @@ impl Iterator for AlgorithmList {
 #[derive(Default)]
 pub struct LuckyRipper {
     inner: Inner,
-    input: String,
-    encoder: Option<Box<dyn HashEncoder>>,
     algorithm_list: AlgorithmList,
-    has_ended: bool,
 }
 
 #[wasm_bindgen]
@@ -56,10 +48,7 @@ impl LuckyRipper {
     pub fn new() -> Self {
         LuckyRipper {
             inner: Inner::new(Box::new(DictionaryList::default())),
-            algorithm_list: AlgorithmList::default(),
-            encoder: None,
-            input: String::default(),
-            has_ended: false,
+            algorithm_list: AlgorithmList::default()
         }
     }
 
@@ -73,15 +62,11 @@ impl LuckyRipper {
     }
 
     pub fn set_input(&mut self, input: &str) {
-        self.input = input.to_string();
+        self.inner.input = input.to_string();
     }
 
     pub fn get_progress(&mut self) -> usize {
-        let checked_algorithms = match self.inner.dictionary.get_index() {
-            0 => HashAlgorithm::iterator().len() - self.algorithm_list.len(),
-            _ => HashAlgorithm::iterator().len() - self.algorithm_list.len() - 1,
-        };
-        checked_algorithms * self.inner.dictionary.len() + self.inner.dictionary.get_index()
+        self.inner.dictionary.get_index() * self.algorithm_list.len()
     }
 
     pub fn get_match(&self) -> String {
@@ -93,46 +78,62 @@ impl LuckyRipper {
     }
 
     pub fn start_matching(&mut self) {
-        self.encoder = None;
         self.algorithm_list = AlgorithmList::default();
-        self.has_ended = false;
         self.inner.reset();
         self.inner.start_ticking();
     }
 
     pub fn check(&mut self, milliseconds: f64) -> bool {
-        if self.inner.word_match.is_none()
-            && self.inner.dictionary.get_index() == 0
-            && !self.algorithm_list.is_empty()
-        {
-            if let Some(algorithm) = self.algorithm_list.pop() {
-                self.encoder = match algorithm.get_encoder() {
-                    Some((_, encoder)) => Some(encoder),
-                    _ => None,
-                };
-                let original_input = self.input.clone();
-                self.inner.input = match algorithm {
-                    HashAlgorithm::Base64 => original_input,
-                    _ => original_input.to_lowercase(),
-                };
-            }
-        }
+        let encoders: Vec<Box<dyn HashEncoder>> = self.algorithm_list.to_owned()
+            .filter_map(|a|a.get_encoder())
+            .map(|(_, encoder)|encoder)
+            .collect();
 
-        let encoder = self.encoder.as_ref().unwrap();
-        let result = HashRipper::core_check(milliseconds, &mut self.inner, encoder);
-
-        if self.inner.dictionary.has_ended() && !self.algorithm_list.is_empty() {
-            self.inner.dictionary.start();
-        }
-
-        result
+        LuckyRipper::core_check(milliseconds, &mut self.inner, &encoders)
     }
 
     pub fn is_checking(&self) -> bool {
-        self.inner.word_match.is_none() && !self.algorithm_list.is_empty() && !self.inner.dictionary.has_ended()
+        self.inner.word_match.is_none() && !self.inner.dictionary.has_ended()
     }
 
     pub fn set_dictionary(&mut self, dictionary_manager: &mut DictionaryManager) {
         self.inner.dictionary = dictionary_manager.make();
     }
+}
+
+impl LuckyRipper {
+    pub fn core_check(
+        milliseconds: f64,
+        mut inner: &mut Inner,
+        encoders: &Vec<Box<dyn HashEncoder>>,
+    ) -> bool {
+        let starting = js_sys::Date::now();
+
+        while let Some(chunk) = inner.dictionary.get_chunk(CHUNK_SIZE) {
+            let mut index = 0;
+            let mut current: Option<&String> = chunk.get(index);
+
+            while inner.word_match.is_none() && current.is_some() {
+                let current_word = current.unwrap();
+
+                for i in 0..encoders.len() {
+                    let encoder = &encoders[i];
+                    let digest = encoder.encode(current_word);
+                    if digest == inner.input {
+                        inner.word_match = Some(current_word.clone());
+                        break;
+                    }
+                }
+
+                index += 1;
+                current = chunk.get(index);
+            }
+
+            if inner.word_match.is_some() || js_sys::Date::now() - starting > milliseconds {
+                break;
+            }
+        }
+
+        inner.word_match.is_some()
+    }    
 }
