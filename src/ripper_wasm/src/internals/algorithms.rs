@@ -45,27 +45,12 @@ pub enum HashAlgorithm {
     Shabal512 = 18,
 }
 
-#[wasm_bindgen]
-#[derive(Clone)]
-pub enum SymetricAlgorithm {
-    Des = 20,
-    Des3 = 21,
-}
-
 pub trait HashEncoderFactory {
     fn get_encoder(&self) -> Option<(u8, Box<dyn HashEncoder>)>;
 }
 
-pub trait SymetricEncoderFactory {
-    fn get_encoder(&self) -> Option<Box<dyn SymetricEncoder>>;
-}
-
 pub trait HashEncoder {
     fn encode(&self, input: &str) -> String;
-}
-
-pub trait SymetricEncoder {
-    fn encode(&self, key: &str, input: &str) -> String;
 }
 
 define_types!(
@@ -74,8 +59,6 @@ define_types!(
     Sha256Wrapper,
     Md4Wrapper,
     Sha1Wrapper,
-    DesWrapper,
-    Des3Wrapper,
     Ripemd128Wrapper,
     Ripemd160Wrapper,
     Ripemd320Wrapper,
@@ -145,15 +128,6 @@ impl HashEncoderFactory for HashAlgorithm {
             HashAlgorithm::Shabal256 => Some((code, Box::new(Shabal256Wrapper {}))),
             HashAlgorithm::Shabal384 => Some((code, Box::new(Shabal384Wrapper {}))),
             HashAlgorithm::Shabal512 => Some((code, Box::new(Shabal512Wrapper {}))),
-        }
-    }
-}
-
-impl SymetricEncoderFactory for SymetricAlgorithm {
-    fn get_encoder(&self) -> Option<Box<dyn SymetricEncoder>> {
-        match self {
-            SymetricAlgorithm::Des => Some(Box::new(DesWrapper {})),
-            SymetricAlgorithm::Des3 => Some(Box::new(Des3Wrapper {})),
         }
     }
 }
@@ -275,18 +249,6 @@ mod shabal {
     );
 }
 
-impl SymetricEncoder for DesWrapper {
-    fn encode(&self, _key: &str, _input: &str) -> String {
-        todo!()
-    }
-}
-
-impl SymetricEncoder for Des3Wrapper {
-    fn encode(&self, _key: &str, _input: &str) -> String {
-        todo!()
-    }
-}
-
 #[cfg(test)]
 mod tests {
 
@@ -320,19 +282,6 @@ mod tests {
         }
     }
 
-    macro_rules! symetric_encoder_tests {
-        ($($name:ident: $value:expr,)*) => {
-        $(
-            #[test]
-            fn $name() {
-                let input = $value;
-                let encoder: Option<Box<dyn SymetricEncoder>> = input.get_encoder();
-                assert!(encoder.is_some());
-            }
-        )*
-        }
-    }
-
     hash_encoder_tests! {
         hash_md2: HashAlgorithm::Md2,
         hash_md4: HashAlgorithm::Md4,
@@ -352,11 +301,6 @@ mod tests {
         hash_shabal256: HashAlgorithm::Shabal256,
         hash_shabal384: HashAlgorithm::Shabal384,
         hash_shabal512: HashAlgorithm::Shabal512,
-    }
-
-    symetric_encoder_tests! {
-        symetric_des: SymetricAlgorithm::Des,
-        symetric_des3: SymetricAlgorithm::Des3,
     }
 
     hash_algorithm_tests! {
