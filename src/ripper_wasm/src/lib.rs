@@ -19,6 +19,7 @@ mod tests {
     #![cfg(target_arch = "wasm32")]
     extern crate wasm_bindgen_test;
     use super::*;
+    use rippers::hashing::HashRipper;
     use wasm_bindgen::prelude::*;
     use wasm_bindgen_test::*;
     use internals::dictionarylist::*;
@@ -26,7 +27,6 @@ mod tests {
     use internals::management::*;
     use internals::wrapper::Inner;
     use rippers::lucky::LuckyRipper;
-    use rippers::hashing::HashRipper;
 
     const ENGLISH_KEY: &str = "english";
     const FRENCH_KEY: &str = "french";
@@ -73,7 +73,7 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    fn chunky_check() {
+    fn given_dictionary_list_and_hash_ripper_when_checking_then_gets_match() {
         let dictionary_lists: Vec<JsValue> = vec![JsValue::from_str(ENGLISH_KEY)];
         let words: String = (0..99999).map(|num| num.to_string() + "\n").collect();
 
@@ -98,7 +98,7 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    fn get_lucky_check() {
+    fn given_dictionary_list_and_lucky_ripper_when_checking_then_gets_match() {
         let dictionary_lists: Vec<JsValue> = vec![JsValue::from_str(ENGLISH_KEY)];
         let words: String = (0..60).map(|num| num.to_string() + "\n").collect();
 
@@ -118,11 +118,30 @@ mod tests {
         assert_eq!("20", cracker.get_match());
         assert_ne!(0.0, cracker.get_elapsed_seconds());
         assert_ne!(0, cracker.get_progress());
-        assert!(!cracker.get_last_word().is_empty());
     }
 
     #[wasm_bindgen_test]
-    fn load_word_entries_reset_values() {
+    fn given_dictionary_maker_and_hash_ripper_when_checking_then_gets_match() {
+        let mut dictionary_manager = DictionaryManager::default();
+        dictionary_manager.set_type(1);
+
+        let mut cracker: HashRipper = HashRipper::new();
+        cracker.set_dictionary(&mut dictionary_manager);
+        cracker.set_algorithm(HashAlgorithm::Md5);
+        cracker.set_input("dc5c7986daef50c1e02ab09b442ee34f");
+        cracker.start_matching();
+
+        while cracker.is_checking() {
+            cracker.check(500f64);
+        }
+
+        assert_eq!("001", cracker.get_match());
+        assert_ne!(0.0, cracker.get_elapsed_seconds());
+        assert_ne!(0, cracker.get_progress());
+    }
+
+    #[wasm_bindgen_test]
+    fn given_dictionary_manager_has_words_cached_when_loading_selection_then_resets_and_gets_expected_word_list() {
         const WORD_LIST_ONE: &str = "one\r\ntwo\r\nthree";
         const WORD_LIST_TWO: &str = "one\r\ntwo\r\nthree\r\nfour";
 
@@ -141,7 +160,7 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    fn dictionary_contains_word_entries() {
+    fn given_dictionary_manager_has_words_cached_when_loading_selection_then_gets_expected_word_list() {
         const WORD_LIST_ONE: &str = "one\r\ntwo\r\nthree";
         const WORD_LIST_TWO: &str = "one\r\ntwo\r\nthree\r\nfour";
 
@@ -157,7 +176,7 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    fn reset_clear_result() {
+    fn given_inner_started_ticking_when_reset_then_reset_to_default_values() {
         let dictionary = DictionaryList::default();
         let mut inner = Inner::new(Box::new(dictionary));
         inner.word_match = Some(String::from("match"));
@@ -170,15 +189,8 @@ mod tests {
         assert!(inner.get_match().is_empty());
     }
 
-    #[test]
-    fn get_last_word_when_empty() {
-        let ripper = HashRipper::new();
-        let actual = ripper.get_last_word();
-        assert_eq!(actual, String::default());
-    }
-
     #[wasm_bindgen_test]
-    fn get_progress_until_end() {
+    fn given_dictionary_list_and_lucky_ripper_when_checking_gets_progress_until_end() {
         const WORD_LIMIT: usize = 10000;
         const NUMBER_OF_HASHERS: usize = 18;
 

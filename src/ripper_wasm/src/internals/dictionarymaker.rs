@@ -4,9 +4,9 @@ use super::management::Dictionary;
 pub struct DictionaryMaker {
     pub chars: Vec<char>,
     pub word_length: usize,
-    pub counter: usize,
+    pub index: usize,
     pub owned: u8,
-    pub word: Vec<usize>,
+    pub word: Option<Vec<usize>>,
     pub last_word: Option<Vec<usize>>,
     buffer: Vec<String>
 }
@@ -15,53 +15,59 @@ impl Iterator for DictionaryMaker {
     type Item = String;
     fn next(&mut self) -> Option<Self::Item> {
 
+        let mut current_word = self.word.take().unwrap_or_default();
+
         if self.chars.is_empty() || self.word_length == 0 {
             return None;
-        } else if self.word.len() == self.word_length && self.word.iter().all(|c|*c == self.chars.len() - 1) {
-            self.last_word = Some(self.word.clone());
+        } else if current_word.len() == self.word_length && current_word.iter().all(|c|*c == self.chars.len() - 1) {
+            self.last_word = Some(current_word.clone());
             return None;
-        } else if self.word.is_empty() {
-            self.word.push(0);
-            return Some(self.translate_word(self.word.to_owned()));
+        } else if current_word.is_empty() {
+            current_word.push(0);
+            let translated_word = self.translate_word(current_word.to_owned());
+            self.word = Some(current_word);
+            return Some(translated_word);
         }
 
-        self.counter += 1;        
-        self.last_word = Some(self.word.clone());
-        let mut current = self.word.pop().unwrap();
+        self.index += 1;        
+        self.last_word = Some(current_word.clone());
+        let mut current = current_word.pop().unwrap();
 
         if current < self.chars.len() - 1 {
             current += 1;
-            self.word.push(current);
-        } else if self.word.is_empty() {
-            self.word.push(0);
-            self.word.push(0);
+            current_word.push(current);
+        } else if current_word.is_empty() {
+            current_word.push(0);
+            current_word.push(0);
         } else {
             self.owned += 1;
-            let mut last = *self.word.last().unwrap();
-            while !self.word.is_empty() && last == self.chars.len() - 1 {
-                self.word.pop();
+            let mut last = *current_word.last().unwrap();
+            while !current_word.is_empty() && last == self.chars.len() - 1 {
+                current_word.pop();
                 self.owned += 1;
-                if !self.word.is_empty() {
-                    last = *self.word.last().unwrap();
+                if !current_word.is_empty() {
+                    last = *current_word.last().unwrap();
                 }
             }
 
-            let value = match self.word.pop() {
+            let value = match current_word.pop() {
                 Some(last) => last + 1,
                 _ => 0,
             };
 
-            self.word.push(value);
+            current_word.push(value);
 
             if self.owned > 0 {
                 for _ in 0..self.owned {
-                    self.word.push(0);
+                    current_word.push(0);
                 }
                 self.owned = 0;
             }
         }
 
-        Some(self.translate_word(self.word.to_owned()))
+        let translated_word = self.translate_word(current_word.to_owned());
+        self.word = Some(current_word);
+        Some(translated_word)
     }
 }
 
@@ -74,8 +80,8 @@ impl DictionaryMaker {
         DictionaryMaker {
             word_length: word_lenth,
             chars: available_chars.to_owned(),
-            word: Vec::default(),
-            counter: 0,
+            word: None,
+            index: 0,
             owned: 0,
             last_word: None,
             buffer: Vec::default()
@@ -89,19 +95,19 @@ impl DictionaryMaker {
 
 impl Dictionary for DictionaryMaker {
     fn len(&self) -> usize {
-        self.counter
+        self.index
     }
 
     fn start(&mut self) {
-        self.counter = 0;
+        self.index = 0;
         self.owned = 0;
         self.last_word = None;
-        self.word = Vec::default();
+        self.word = None;
         self.buffer = Vec::default();
     }
 
     fn get_index(&self) -> usize {
-        self.counter
+        self.index
     }
 
     fn get_chunk(&mut self, size: usize) -> Option<&[String]> {
@@ -115,15 +121,11 @@ impl Dictionary for DictionaryMaker {
             }
         }
 
+        self.index += self.buffer.len();
+
         match self.buffer.len() {
             0 => None,
             _ => Some(self.buffer.as_slice())
-        }
-    }
-
-    fn forward(&mut self, size: usize) {
-        for _ in 0..size {
-            self.next();
         }
     }
 
@@ -133,6 +135,10 @@ impl Dictionary for DictionaryMaker {
         } else {
             None
         }
+    }
+
+    fn has_ended(&self) -> bool {
+        self.word.is_none() && self.last_word.is_some()
     }
 }
 

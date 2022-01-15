@@ -121,20 +121,15 @@ impl LuckyRipper {
         let encoder = self.encoder.as_ref().unwrap();
         let result = HashRipper::core_check(milliseconds, &mut self.inner, encoder);
 
-        if self.inner.dictionary.get_index() == self.inner.dictionary.len()
-            && self.inner.word_match.is_none()
-        {
-            self.has_ended = self.algorithm_list.is_empty();
-            if !self.has_ended {
-                self.inner.dictionary.start();
-            }
+        if self.inner.dictionary.has_ended() && !self.algorithm_list.is_empty() {
+            self.inner.dictionary.start();
         }
 
         result
     }
 
     pub fn is_checking(&self) -> bool {
-        self.inner.word_match.is_none() && !self.has_ended
+        self.inner.word_match.is_none() && !self.algorithm_list.is_empty() && !self.inner.dictionary.has_ended()
     }
 
     pub fn set_dictionary(&mut self, dictionary_manager: &mut DictionaryManager) {

@@ -35,16 +35,16 @@ impl Dictionary for DictionaryList {
             self.word_list.get(self.index..)
         };
 
+        self.index = if self.index + size < self.word_list.len() { 
+            self.index + size 
+        } else {
+            self.word_list.len()
+        };
+
         if chunk.unwrap().is_empty() {
             None
         } else {
             chunk
-        }
-    }
-
-    fn forward(&mut self, size: usize) {
-        for _ in 0..size {
-            self.next();
         }
     }
 
@@ -56,6 +56,10 @@ impl Dictionary for DictionaryList {
         } else {
             None
         }
+    }
+
+    fn has_ended(&self) -> bool {
+        self.index >= self.len()
     }
 }
 
@@ -104,7 +108,6 @@ mod tests {
         while let Some(chunk) = dictionary.get_chunk(CHUNK_SIZE) {
             let mut chunk_vector: Vec<String> = chunk.iter().map(|word| word.clone()).collect();
             content.append(&mut chunk_vector);
-            dictionary.forward(CHUNK_SIZE);
             rounds += 1;
         }
 

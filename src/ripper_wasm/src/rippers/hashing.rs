@@ -115,7 +115,7 @@ impl HashRipper {
     }
 
     pub fn is_checking(&self) -> bool {
-        self.inner.word_match.is_none() && self.get_progress() < self.inner.dictionary.len()
+        self.inner.word_match.is_none() && !self.inner.dictionary.has_ended()
     }
 
     pub fn set_dictionary(&mut self, dictionary_manager: &mut DictionaryManager) {
@@ -145,8 +145,6 @@ impl HashRipper {
                 index += 1;
                 current = chunk.get(index);
             }
-
-            inner.dictionary.forward(CHUNK_SIZE);
 
             if inner.word_match.is_some() || js_sys::Date::now() - starting > milliseconds {
                 break;

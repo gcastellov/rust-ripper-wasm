@@ -14,8 +14,8 @@ pub trait Dictionary: Iterator {
     fn start(&mut self);
     fn get_index(&self) -> usize;
     fn get_chunk(&mut self, size: usize) -> Option<&[String]>;
-    fn forward(&mut self, size: usize);
     fn get_last(&self) -> Option<String>;
+    fn has_ended(&self) -> bool;
 }
 
 enum DictionaryType {

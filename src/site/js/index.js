@@ -20,6 +20,7 @@ if (nav !== null && nav !== "undefined") {
         TXT_INPUT: "txtPwdInput",
         TXT_ELAPSED_TIME: "txtElapsedTime",
         TXT_LAST_WORD: "txtLastWord",
+        RD_DICTIONARY_TYPE: "rdDictionaryType"
     };
     
     const events = {
@@ -50,6 +51,7 @@ if (nav !== null && nav !== "undefined") {
     const btnRun = document.getElementById(elements.BTN_RUN);
     const btnCancel = document.getElementById(elements.BTN_CANCEL);
     const btnAll = document.getElementById(elements.BTN_ALL);
+    const rdDictionaryTypes = document.getElementsByName(elements.RD_DICTIONARY_TYPE);
     let isCancelationRequested = false;
     lblVersion.innerHTML = APP_VERSION;
     
@@ -88,16 +90,39 @@ if (nav !== null && nav !== "undefined") {
     
             const ckDictionaries = document.getElementsByName(elements.CK_DICTIONARY);
             const rbAlgorithms = document.getElementsByName(elements.RB_ALGORITHM);
-            const txtWordListCount = document.getElementById(elements.TXT_WORD_COUNT);
             const txtPwdOutput = document.getElementById(elements.TXT_OUTPUT);
             const txtElapsedTime = document.getElementById(elements.TXT_ELAPSED_TIME);
             const txtLastWord = document.getElementById(elements.TXT_LAST_WORD);
             const txtPassword = document.getElementById(elements.TXT_INPUT);
+            const txtWordListCount = document.getElementById(elements.TXT_WORD_COUNT);
             
             let mutex = new Mutex();
             let dictionaryManager = new j.DictionaryManager();
             let ripper = null;
             let manualDictionarySelection = [];
+
+            const changeDictionaryType = (e) => {
+                const types = Array.from(rdDictionaryTypes);
+                const selected =  types.find(type => type.checked);                
+                dictionaryManager.set_type(selected.value);
+
+                const dictionaryList = document.getElementById("dictionary-list");
+                const dictionaryHelp = document.getElementById("dictionary-help");
+                const dictionaryFooter = document.getElementById("dictionary-footer");
+                const wordEntries = document.getElementById("word-entries");
+
+                if (selected.value == "0") {                    
+                    dictionaryList.style.display = "";
+                    dictionaryHelp.style.display = "";
+                    dictionaryFooter.style.display = "";
+                    wordEntries.style.display = "";
+                } else {
+                    dictionaryList.style.display = "none";
+                    dictionaryHelp.style.display = "none";
+                    dictionaryFooter.style.display = "none";
+                    wordEntries.style.display = "none";
+                }
+            };
     
             const getSelectedAlgorithm = () => {
                 const algorithms = Array.from(rbAlgorithms);
@@ -373,6 +398,7 @@ if (nav !== null && nav !== "undefined") {
             txtPassword.addEventListener(events.KEYUP, enableDisableExecution);
             rbAlgorithms.forEach(element => element.addEventListener(events.CHANGE, clean));
             ckDictionaries.forEach(element => element.addEventListener(events.CHANGE, debounce(updateDictionarySelection, 2000)));
+            rdDictionaryTypes.forEach(element => element.addEventListener(events.CHANGE, changeDictionaryType));
         });
     });
 }

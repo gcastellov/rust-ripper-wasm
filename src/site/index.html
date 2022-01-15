@@ -151,6 +151,15 @@
                     <div class="px-4 py-5 bg-white space-y-6 sm:p-6">
                         <h3 class="text-lg font-medium leading-6 text-gray-900">Dictionaries</h3>
                         <p class="mt-1 text-sm text-gray-600">
+                          Choose the dictionary type:
+                        </p>
+                        <p>
+                          <input type="radio" name="rdDictionaryType" id="rdList" value="0" checked="checked" />
+                          <label for="rdList">List</label>
+                          <input type="radio" name="rdDictionaryType" id="rdMaker" value="1" />
+                          <label for="rdMaker">Auto generated</label>
+                        </p>
+                        <p id="dictionary-help" class="mt-1 text-sm text-gray-600">
                           Choose dictionaries to increase your chances
                         </p>
                         <div class="dictionaries">
@@ -194,7 +203,7 @@
                             </ul>
                           </div>  
                       </div>
-                      <div class="px-4 py-3 bg-gray-50 text-left sm:px-6">
+                      <div id="dictionary-footer" class="px-4 py-3 bg-gray-50 text-left sm:px-6">
                         <button type="button" name="btnAll" id="btnAll" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-400 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300">
                           Select all
                         </button>
@@ -217,8 +226,8 @@
                         </div>
                       </div>
 
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700">
+                      <div id="word-entries">
+                        <label id="lblWordListCount" class="block text-sm font-medium text-gray-700">
                             Word entries
                         </label>
                         <div class="mt-1 flex rounded-md shadow-sm">

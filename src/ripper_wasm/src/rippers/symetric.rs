@@ -71,7 +71,7 @@ impl SymetricRipper {
                 current = chunk.get(index);
             }
 
-            self.inner.dictionary.forward(CHUNK_SIZE);
+            // self.inner.dictionary.forward(CHUNK_SIZE);
             if self.inner.word_match.is_some() || js_sys::Date::now() - starting > milliseconds {
                 break;
             }
