@@ -1,6 +1,8 @@
 [![CI](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/ci.yml/badge.svg)](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/ci.yml)
 [![Docker](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/gcastellov/rust-ripper-wasm/actions/workflows/docker-publish.yml)
 
+[![](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)](/src/ripper_wasm/src/lib.rs)
+[![](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)](/src/site/js/index.js)
 
 # WASM rust the ripper 
 Password cracker made in WASM Rust, inspired by the popular John the Ripper.

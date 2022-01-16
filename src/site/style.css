@@ -7,6 +7,11 @@ body {
   padding: 10pt 0 10pt 0;
 }
 
+#lblVersion {
+  float: right;
+  margin-right: 5pt;
+}
+
 #file-input {
   display: none;
 }
