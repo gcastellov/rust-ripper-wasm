@@ -7,7 +7,7 @@ extern crate ripemd128;
 extern crate ripemd160;
 extern crate ripemd320;
 extern crate sha1;
-extern crate sha256;
+extern crate rs_sha256;
 extern crate whirlpool;
 
 mod rippers;
