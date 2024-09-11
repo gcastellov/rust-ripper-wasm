@@ -126,7 +126,7 @@ impl HashRipper {
 impl HashRipper {
     pub fn core_check(
         milliseconds: f64,
-        mut inner: &mut Inner,
+        inner: &mut Inner,
         encoder: &Box<dyn HashEncoder>,
     ) -> bool {
         let starting = js_sys::Date::now();

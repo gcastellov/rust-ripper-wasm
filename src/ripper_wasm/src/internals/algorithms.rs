@@ -155,10 +155,15 @@ mod base64 {
 
 mod sha256 {
     use super::{Sha256Wrapper,HashEncoder};
+    use rs_sha256::{HasherContext, Sha256Hasher};
+    use std::hash::Hasher;
 
     impl HashEncoder for Sha256Wrapper {
         fn encode(&self, input: &str) -> String {
-            sha256::digest(input)
+            let mut sha256hasher = Sha256Hasher::default();
+            sha256hasher.write(input.as_bytes());
+            let bytes_result = HasherContext::finish(&mut sha256hasher);
+            format!("{bytes_result:02x}")
         }
     }
 }
