@@ -15,7 +15,7 @@ module.exports = () => {
   console.log(`Environment: ${environment}`);
 
   return {
-    entry: [ "./js/index.js", "./js/cipher.js", "./style.css" ],
+    entry: [ "./js/index.js", "./js/cipher.js", "./js/cookieconsent.js", "./style.css" ],
     output: {
       path: path.resolve(__dirname, "dist"),
       filename: "bundle.js",

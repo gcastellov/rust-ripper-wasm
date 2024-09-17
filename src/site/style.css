@@ -33,3 +33,13 @@ nav {
 #btnAll {
   margin-bottom: 2pt;
 }
+
+button[data-role='all'] {
+  background-color: rgba(129,140,248) !important;
+  border-color: transparent !important;
+}
+
+button[data-role='necessary'] {
+  background-color: rgba(156,163,175) !important;
+  border-color: transparent !important;
+}
